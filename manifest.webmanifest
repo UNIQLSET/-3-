@@ -1,0 +1,17 @@
+{
+  "name": "Расписание 3 курс",
+  "short_name": "Расписание",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#1C2333",
+  "theme_color": "#1C2333",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
