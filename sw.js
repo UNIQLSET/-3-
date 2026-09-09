@@ -1,10 +1,12 @@
-const CACHE = 'schedule-1-3-v3';
+const CACHE = 'schedule-1-3-v4';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => c.addAll(ASSETS))
+      .then(c => Promise.all(ASSETS.map(url =>
+        fetch(url, { cache: 'no-store' }).then(res => c.put(url, res))
+      )))
       .then(() => self.skipWaiting())
   );
 });
@@ -23,10 +25,10 @@ self.addEventListener('fetch', e => {
     (req.method === 'GET' && (req.headers.get('accept') || '').includes('text/html'));
 
   if (isHTML) {
-    // Network-first: always try to get the freshest page first.
-    // Falls back to cache only when offline.
+    // Network-first, and explicitly bypass any HTTP cache layer too
+    // (hosting providers / CDNs sometimes cache HTML for a while).
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-store' })
         .then(res => {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put(req, copy));
@@ -37,7 +39,6 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first for static assets (fonts, icon, manifest, etc.)
   e.respondWith(
     caches.match(req).then(cached => cached || fetch(req).then(res => {
       const copy = res.clone();
@@ -46,3 +47,4 @@ self.addEventListener('fetch', e => {
     }).catch(() => cached))
   );
 });
+

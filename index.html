@@ -8348,28 +8348,54 @@
 
 <script>
 (function(){
-  if (!('serviceWorker' in navigator)) return;
+  // Bump this string on EVERY deploy (together with CACHE in sw.js).
+  // It's how a suspended home-screen app detects that a newer version
+  // exists once it's brought back to the foreground.
+  var BUILD_VERSION = 'schedule-1-3-v4';
 
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js').then(function(reg){
-      // Check for a newer version every time the app is opened/resumed,
-      // and periodically while it stays open.
-      reg.update();
-      document.addEventListener('visibilitychange', function(){
-        if (document.visibilityState === 'visible') reg.update();
-      });
-      setInterval(function(){ reg.update(); }, 30 * 60 * 1000);
-    }).catch(function(){});
-  });
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+        .then(function(reg){ reg.update(); })
+        .catch(function(){});
+    });
 
-  // When a new service worker takes control, the page content may be
-  // outdated (old JS/CSS still in memory) — reload once to pick it up.
-  let reloaded = false;
-  navigator.serviceWorker.addEventListener('controllerchange', function(){
-    if (reloaded) return;
-    reloaded = true;
-    window.location.reload();
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if (reloaded) return;
+      reloaded = true;
+      window.location.reload();
+    });
+  }
+
+  // iOS home-screen apps: reopening the icon usually just resumes the
+  // already-loaded page from memory — no network request happens, so the
+  // service worker never gets a chance to run. To catch that case, fetch
+  // the live index.html (bypassing every cache layer) whenever the app
+  // comes back to the foreground, and hard-reload with a fresh URL if the
+  // version marker inside it doesn't match what's currently loaded.
+  var checking = false;
+  function checkVersion(){
+    if (checking) return;
+    checking = true;
+    fetch('./index.html?_=' + Date.now(), { cache: 'no-store' })
+      .then(function(res){ return res.text(); })
+      .then(function(html){
+        var m = html.match(/BUILD_VERSION\s*=\s*'([^']+)'/);
+        if (m && m[1] !== BUILD_VERSION) {
+          window.location.href = window.location.pathname + '?_v=' + Date.now();
+        }
+      })
+      .catch(function(){})
+      .finally(function(){ checking = false; });
+  }
+
+  window.addEventListener('pageshow', checkVersion);
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible') checkVersion();
   });
+  window.addEventListener('focus', checkVersion);
+  setInterval(checkVersion, 5 * 60 * 1000);
 })();
 </script>
 
