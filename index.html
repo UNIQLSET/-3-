@@ -78,6 +78,24 @@
     gap:6px;
     margin-top:16px;
   }
+  .group-row{
+    display:flex;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:16px;
+  }
+  .group-row .group-tabs{ margin-top:0; }
+  .header-meme{
+    margin-left:auto;
+    width:52px;
+    height:52px;
+    object-fit:cover;
+    border-radius:14px;
+    transform:rotate(-4deg);
+    box-shadow:0 4px 14px rgba(0,0,0,.35);
+    flex-shrink:0;
+  }
   .group-tab{
     padding:8px 16px;
     border-radius:100px;
@@ -1472,9 +1490,12 @@
     <p class="eyebrow" id="eyebrow-text">Академия МВД · факультет права · 3 курс, 5 семестр</p>
     <h1>Расписание занятий</h1>
     <p class="sub">2026/2027 учебный год</p>
-    <div class="group-tabs" id="group-tabs-1" style="display:none"><label for="grp-6501" class="group-tab">6501</label><label for="grp-6502" class="group-tab">6502</label><label for="grp-6503" class="group-tab">6503</label><label for="grp-6504" class="group-tab">6504</label></div>
-    <div class="group-tabs" id="group-tabs-2" style="display:none"><label for="grp-5501" class="group-tab">5501</label><label for="grp-5502" class="group-tab">5502</label><label for="grp-5503" class="group-tab">5503</label></div>
-    <div class="group-tabs" id="group-tabs-3"><label for="grp-4501" class="group-tab">4501</label><label for="grp-4502" class="group-tab">4502</label><label for="grp-4503" class="group-tab">4503</label></div>
+    <div class="group-row">
+      <div class="group-tabs" id="group-tabs-1" style="display:none"><label for="grp-6501" class="group-tab">6501</label><label for="grp-6502" class="group-tab">6502</label><label for="grp-6503" class="group-tab">6503</label><label for="grp-6504" class="group-tab">6504</label></div>
+      <div class="group-tabs" id="group-tabs-2" style="display:none"><label for="grp-5501" class="group-tab">5501</label><label for="grp-5502" class="group-tab">5502</label><label for="grp-5503" class="group-tab">5503</label></div>
+      <div class="group-tabs" id="group-tabs-3"><label for="grp-4501" class="group-tab">4501</label><label for="grp-4502" class="group-tab">4502</label><label for="grp-4503" class="group-tab">4503</label></div>
+      <img src="./meme.jpg" alt="" class="header-meme">
+    </div>
   </div>
 </div>
 
@@ -8351,7 +8372,7 @@
   // Bump this string on EVERY deploy (together with CACHE in sw.js).
   // It's how a suspended home-screen app detects that a newer version
   // exists once it's brought back to the foreground.
-  var BUILD_VERSION = 'schedule-1-3-v4';
+  var BUILD_VERSION = 'schedule-1-3-v5';
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){

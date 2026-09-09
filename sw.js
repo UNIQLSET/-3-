@@ -1,5 +1,5 @@
-const CACHE = 'schedule-1-3-v4';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
+const CACHE = 'schedule-1-3-v5';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './meme.jpg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -25,8 +25,6 @@ self.addEventListener('fetch', e => {
     (req.method === 'GET' && (req.headers.get('accept') || '').includes('text/html'));
 
   if (isHTML) {
-    // Network-first, and explicitly bypass any HTTP cache layer too
-    // (hosting providers / CDNs sometimes cache HTML for a while).
     e.respondWith(
       fetch(req, { cache: 'no-store' })
         .then(res => {
@@ -47,4 +45,3 @@ self.addEventListener('fetch', e => {
     }).catch(() => cached))
   );
 });
-
