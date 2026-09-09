@@ -1,12 +1,21 @@
-const CACHE = 'schedule-1-3-v5';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './meme.jpg'];
+const CACHE = 'schedule-1-3-v8';
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './icon.svg',
+  './meme.jpg'
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => Promise.all(ASSETS.map(url =>
-        fetch(url, { cache: 'no-store' }).then(res => c.put(url, res))
-      )))
+      .then(c => Promise.all(
+        ASSETS.map(url =>
+          fetch(url, { cache: 'no-store' })
+            .then(res => c.put(url, res))
+        )
+      ))
       .then(() => self.skipWaiting())
   );
 });
@@ -14,15 +23,26 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(keys =>
+        Promise.all(
+          keys
+            .filter(k => k !== CACHE)
+            .map(k => caches.delete(k))
+        )
+      )
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', e => {
   const req = e.request;
-  const isHTML = req.mode === 'navigate' ||
-    (req.method === 'GET' && (req.headers.get('accept') || '').includes('text/html'));
+
+  const isHTML =
+    req.mode === 'navigate' ||
+    (
+      req.method === 'GET' &&
+      (req.headers.get('accept') || '').includes('text/html')
+    );
 
   if (isHTML) {
     e.respondWith(
@@ -32,16 +52,26 @@ self.addEventListener('fetch', e => {
           caches.open(CACHE).then(c => c.put(req, copy));
           return res;
         })
-        .catch(() => caches.match(req).then(r => r || caches.match('./index.html')))
+        .catch(() =>
+          caches.match(req).then(r =>
+            r || caches.match('./index.html')
+          )
+        )
     );
     return;
   }
 
   e.respondWith(
-    caches.match(req).then(cached => cached || fetch(req).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(req, copy));
-      return res;
-    }).catch(() => cached))
+    caches.match(req)
+      .then(cached =>
+        cached ||
+        fetch(req)
+          .then(res => {
+            const copy = res.clone();
+            caches.open(CACHE).then(c => c.put(req, copy));
+            return res;
+          })
+          .catch(() => cached)
+      )
   );
 });
