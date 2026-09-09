@@ -106,16 +106,36 @@
   .day-tabs::-webkit-scrollbar{ display:none; }
   .day-tab{
     flex:0 0 auto;
-    padding:10px 14px 9px;
-    font-size:14.5px;
-    font-weight:500;
-    color:var(--muted);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    padding:8px 14px 9px;
     cursor:pointer;
     white-space:nowrap;
     border-bottom:3px solid transparent;
     margin-bottom:-1px;
     -webkit-tap-highlight-color:transparent;
     user-select:none;
+  }
+  .day-tab .day-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--muted);
+    line-height:1;
+    padding:2px 6px;
+    border-radius:100px;
+  }
+  .day-tab .day-num.is-today{
+    background:var(--gold);
+    color:#fff;
+  }
+  .day-tab .day-name{
+    font-size:14.5px;
+    font-weight:500;
+    color:var(--muted);
+    line-height:1;
   }
 
   .week-nav{
@@ -171,6 +191,32 @@
   .lesson-card.type-Лекция{ border-left-color:var(--gold); }
   .lesson-card.type-Практика{ border-left-color:var(--teal); }
   .lesson-card.type-Семинар{ border-left-color:var(--plum); }
+
+  .lesson-card.is-now{
+    position:relative;
+    border-color:var(--teal);
+    border-left-color:var(--teal);
+    background:var(--teal-bg);
+    animation:pulse-now 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse-now{
+    0%,100%{ box-shadow:0 0 0 0 rgba(39,98,88,.35); }
+    50%{ box-shadow:0 0 0 4px rgba(39,98,88,0); }
+  }
+  .lesson-card.is-now::before{
+    content:'\25CF Сейчас';
+    position:absolute;
+    top:-9px;
+    right:12px;
+    background:var(--teal);
+    color:#fff;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:.03em;
+    padding:3px 9px;
+    border-radius:100px;
+  }
 
   .lesson-time{
     font-family:'IBM Plex Mono', monospace;
@@ -244,12 +290,26 @@
 #week-15:checked ~ .app .week-nav-15 { display:flex; }
 #week-16:checked ~ .app .week-nav-16 { display:flex; }
 #week-17:checked ~ .app .week-nav-17 { display:flex; }
-  #day-mon:checked ~ .app label[for="day-mon"] { color:var(--ink); border-bottom-color:var(--gold); font-weight:600; }
-#day-tue:checked ~ .app label[for="day-tue"] { color:var(--ink); border-bottom-color:var(--gold); font-weight:600; }
-#day-wed:checked ~ .app label[for="day-wed"] { color:var(--ink); border-bottom-color:var(--gold); font-weight:600; }
-#day-thu:checked ~ .app label[for="day-thu"] { color:var(--ink); border-bottom-color:var(--gold); font-weight:600; }
-#day-fri:checked ~ .app label[for="day-fri"] { color:var(--ink); border-bottom-color:var(--gold); font-weight:600; }
-#day-sat:checked ~ .app label[for="day-sat"] { color:var(--ink); border-bottom-color:var(--gold); font-weight:600; }
+  #day-mon:checked ~ .app label[for="day-mon"],
+  #day-tue:checked ~ .app label[for="day-tue"],
+  #day-wed:checked ~ .app label[for="day-wed"],
+  #day-thu:checked ~ .app label[for="day-thu"],
+  #day-fri:checked ~ .app label[for="day-fri"],
+  #day-sat:checked ~ .app label[for="day-sat"] { border-bottom-color:var(--gold); }
+
+  #day-mon:checked ~ .app label[for="day-mon"] .day-name,
+  #day-tue:checked ~ .app label[for="day-tue"] .day-name,
+  #day-wed:checked ~ .app label[for="day-wed"] .day-name,
+  #day-thu:checked ~ .app label[for="day-thu"] .day-name,
+  #day-fri:checked ~ .app label[for="day-fri"] .day-name,
+  #day-sat:checked ~ .app label[for="day-sat"] .day-name { color:var(--ink); font-weight:600; }
+
+  #day-mon:checked ~ .app label[for="day-mon"] .day-num:not(.is-today),
+  #day-tue:checked ~ .app label[for="day-tue"] .day-num:not(.is-today),
+  #day-wed:checked ~ .app label[for="day-wed"] .day-num:not(.is-today),
+  #day-thu:checked ~ .app label[for="day-thu"] .day-num:not(.is-today),
+  #day-fri:checked ~ .app label[for="day-fri"] .day-num:not(.is-today),
+  #day-sat:checked ~ .app label[for="day-sat"] .day-num:not(.is-today) { color:var(--ink); }
   #grp-4501:checked ~ .header label[for="grp-4501"] { background:#EDEBE2; color:var(--ink); border-color:#EDEBE2; }
 #grp-4502:checked ~ .header label[for="grp-4502"] { background:#EDEBE2; color:var(--ink); border-color:#EDEBE2; }
 #grp-4503:checked ~ .header label[for="grp-4503"] { background:#EDEBE2; color:var(--ink); border-color:#EDEBE2; }
@@ -1431,12 +1491,12 @@
 <div class="app">
   <div class="wrap">
     <div class="day-tabs">
-      <label for="day-mon" class="day-tab">Пн</label>
-      <label for="day-tue" class="day-tab">Вт</label>
-      <label for="day-wed" class="day-tab">Ср</label>
-      <label for="day-thu" class="day-tab">Чт</label>
-      <label for="day-fri" class="day-tab">Пт</label>
-      <label for="day-sat" class="day-tab">Сб</label>
+      <label for="day-mon" class="day-tab"><span class="day-num" id="daynum-mon"></span><span class="day-name">Пн</span></label>
+      <label for="day-tue" class="day-tab"><span class="day-num" id="daynum-tue"></span><span class="day-name">Вт</span></label>
+      <label for="day-wed" class="day-tab"><span class="day-num" id="daynum-wed"></span><span class="day-name">Ср</span></label>
+      <label for="day-thu" class="day-tab"><span class="day-num" id="daynum-thu"></span><span class="day-name">Чт</span></label>
+      <label for="day-fri" class="day-tab"><span class="day-num" id="daynum-fri"></span><span class="day-name">Пт</span></label>
+      <label for="day-sat" class="day-tab"><span class="day-num" id="daynum-sat"></span><span class="day-name">Сб</span></label>
     </div>
 
     <div class="week-nav week-nav-0">
@@ -8137,6 +8197,11 @@
   const START = new Date(2026,7,31);
   const MAX_WEEK = 17;
   const COURSE_KEY = 'schedule-selected-course';
+  // Bell schedule is fixed university-wide: pair number -> [startMinutes, endMinutes]
+  const PAIR_TIMES = {
+    '1 пара':[510,590], '2 пара':[600,680], '3 пара':[690,770],
+    '4 пара':[860,940], '5 пара':[950,1030], '6 пара':[1040,1120]
+  };
 
   function setChecked(id){ const el=document.getElementById(id); if(el) el.checked=true; }
 
@@ -8156,10 +8221,51 @@
     return 'week-'+Math.max(0,Math.min(MAX_WEEK,w));
   }
 
+  function checkedValue(name, prefix){
+    const el = document.querySelector('input[name="'+name+'"]:checked');
+    return el ? el.id.replace(prefix,'') : null;
+  }
+
+  function updateDayNumbers(){
+    const w = parseInt(checkedValue('week','week-'), 10);
+    if (isNaN(w)) return;
+    const monday = new Date(START.getFullYear(), START.getMonth(), START.getDate() + w*7);
+    const todayStr = new Date().toDateString();
+    DAYS.forEach(function(id, i){
+      const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+      const el = document.getElementById('daynum-' + id.replace('day-',''));
+      if (!el) return;
+      el.textContent = d.getDate();
+      el.classList.toggle('is-today', d.toDateString() === todayStr);
+    });
+  }
+
+  function updateActiveLesson(){
+    document.querySelectorAll('.lesson-card.is-now').forEach(function(c){ c.classList.remove('is-now'); });
+    const now = new Date();
+    if (now.getDay() === 0) return; // no pairs on Sunday
+    const selDay = checkedValue('day','day-');
+    const selWeek = checkedValue('week','week-');
+    if (selDay !== dayIdFor(now).replace('day-','') || selWeek !== weekIdFor(now).replace('week-','')) return;
+    const selGroup = checkedValue('group','grp-');
+    if (!selGroup) return;
+    const panel = document.querySelector('.panel-'+selGroup+'-'+selDay+'-'+selWeek);
+    if (!panel) return;
+    const mins = now.getHours()*60 + now.getMinutes();
+    panel.querySelectorAll('.lesson-card').forEach(function(card){
+      const numEl = card.querySelector('.lesson-time .num');
+      if (!numEl) return;
+      const range = PAIR_TIMES[numEl.textContent.trim()];
+      if (range && mins >= range[0] && mins < range[1]) card.classList.add('is-now');
+    });
+  }
+
   function applyTodaySettings(){
     const now=new Date();
     setChecked(dayIdFor(now));
     setChecked(weekIdFor(now));
+    updateDayNumbers();
+    updateActiveLesson();
   }
 
   function showCourseTabs(course){
@@ -8200,9 +8306,16 @@
 
   document.querySelectorAll('input[name="group"]').forEach(function(r){
     r.addEventListener('change', saveGroup);
+    r.addEventListener('change', updateActiveLesson);
+  });
+  document.querySelectorAll('input[name="day"]').forEach(function(r){
+    r.addEventListener('change', updateActiveLesson);
+  });
+  document.querySelectorAll('input[name="week"]').forEach(function(r){
+    r.addEventListener('change', function(){ updateDayNumbers(); updateActiveLesson(); });
   });
   document.querySelectorAll('.course-btn').forEach(function(b){
-    b.addEventListener('click', function(){ selectCourse(b.dataset.course); });
+    b.addEventListener('click', function(){ selectCourse(b.dataset.course); updateActiveLesson(); });
   });
 
   let initialCourse = '3';
@@ -8214,6 +8327,7 @@
   setInterval(function(){
     const cur = new Date().toDateString();
     if (cur !== lastDate){ lastDate = cur; applyTodaySettings(); }
+    updateActiveLesson();
   }, 60000);
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -8229,6 +8343,33 @@
     try { localStorage.setItem('iosInstallHintClosed','1'); } catch(e) {}
     hint.style.display = 'none';
   };
+})();
+</script>
+
+<script>
+(function(){
+  if (!('serviceWorker' in navigator)) return;
+
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js').then(function(reg){
+      // Check for a newer version every time the app is opened/resumed,
+      // and periodically while it stays open.
+      reg.update();
+      document.addEventListener('visibilitychange', function(){
+        if (document.visibilityState === 'visible') reg.update();
+      });
+      setInterval(function(){ reg.update(); }, 30 * 60 * 1000);
+    }).catch(function(){});
+  });
+
+  // When a new service worker takes control, the page content may be
+  // outdated (old JS/CSS still in memory) — reload once to pick it up.
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if (reloaded) return;
+    reloaded = true;
+    window.location.reload();
+  });
 })();
 </script>
 
