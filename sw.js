@@ -1,77 +1,62 @@
-const CACHE = 'schedule-1-3-v10';
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './icon.svg',
-  './meme.jpg'
-];
+// Автообновляемый Service Worker — без ручных версий.
+const CACHE = 'schedule-runtime-v1';
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE)
-      .then(c => Promise.all(
-        ASSETS.map(url =>
-          fetch(url, { cache: 'no-store' })
-            .then(res => c.put(url, res))
-        )
-      ))
-      .then(() => self.skipWaiting())
-  );
+  // Ничего не precache-им принудительно — просто активируемся.
+  e.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys()
-      .then(keys =>
-        Promise.all(
-          keys
-            .filter(k => k !== CACHE)
-            .map(k => caches.delete(k))
-        )
-      )
+      .then(keys => Promise.all(
+        keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+      ))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', e => {
   const req = e.request;
+  const url = new URL(req.url);
 
-  const isHTML =
+  // Только свой origin
+  if (url.origin !== location.origin) return;
+  // Не трогаем не-GET
+  if (req.method !== 'GET') return;
+
+  // HTML и JS/CSS/JSON — network-first: всегда пробуем сеть,
+  // кэш только как офлайн-запаска.
+  const isCode =
     req.mode === 'navigate' ||
-    (
-      req.method === 'GET' &&
-      (req.headers.get('accept') || '').includes('text/html')
-    );
+    /\.(html|js|css|json|webmanifest)$/i.test(url.pathname) ||
+    (req.headers.get('accept') || '').includes('text/html');
 
-  if (isHTML) {
+  if (isCode) {
     e.respondWith(
-      fetch(req, { cache: 'no-store' })
+      fetch(req)
         .then(res => {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put(req, copy));
           return res;
         })
-        .catch(() =>
-          caches.match(req).then(r =>
-            r || caches.match('./index.html')
-          )
-        )
+        .catch(() => caches.match(req))
     );
     return;
   }
 
+  // Картинки — stale-while-revalidate: отдаём из кэша, но фоном тянем свежую.
   e.respondWith(
-    caches.match(req)
-      .then(cached =>
-        cached ||
-        fetch(req)
+    caches.open(CACHE).then(cache =>
+      cache.match(req).then(cached => {
+        const network = fetch(req)
           .then(res => {
-            const copy = res.clone();
-            caches.open(CACHE).then(c => c.put(req, copy));
+            cache.put(req, res.clone());
             return res;
           })
-          .catch(() => cached)
-      )
+          .catch(() => cached);
+        return cached || network;
+      })
+    )
   );
 });
