@@ -25,8 +25,7 @@ self.addEventListener('fetch', e => {
   // Не трогаем не-GET
   if (req.method !== 'GET') return;
 
-  // HTML и JS/CSS/JSON — network-first: всегда пробуем сеть,
-  // кэш только как офлайн-запаска.
+
   const isCode =
     req.mode === 'navigate' ||
     /\.(html|js|css|json|webmanifest)$/i.test(url.pathname) ||
@@ -45,7 +44,7 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Картинки — stale-while-revalidate: отдаём из кэша, но фоном тянем свежую.
+
   e.respondWith(
     caches.open(CACHE).then(cache =>
       cache.match(req).then(cached => {
