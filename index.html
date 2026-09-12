@@ -459,6 +459,77 @@
   background:var(--paper);
   border-color:var(--line);
 }
+.foot-note{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.6;
+  max-width:340px;
+  margin:0 auto 22px;
+}
+
+.author-card{
+  display:inline-flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 20px 14px 14px;
+  background:var(--paper-card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  text-align:left;
+}
+.author-avatar{
+  width:48px; height:48px;
+  border-radius:12px;
+  background:linear-gradient(135deg, var(--ink) 0%, var(--teal) 100%);
+  color:#EDEBE2;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size:18px;
+  letter-spacing:.02em;
+  flex:0 0 auto;
+}
+.author-info{ min-width:0; }
+.author-name{
+  font-family:'Fraunces', serif;
+  font-weight:600;
+  font-size:16px;
+  color:var(--ink);
+  line-height:1.1;
+}
+.author-role{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:10.5px;
+  color:var(--muted);
+  margin-top:3px;
+  letter-spacing:.02em;
+}
+.author-links{
+  margin-top:9px;
+  display:flex;
+  gap:6px;
+}
+.author-links a{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:11.5px;
+  font-weight:600;
+  color:var(--ink-soft);
+  text-decoration:none;
+  padding:3px 9px;
+  border-radius:100px;
+  border:1px solid var(--line);
+  transition:border-color .12s, color .12s, background .12s;
+}
+.author-links a:hover{
+  border-color:var(--teal);
+  color:var(--teal);
+  background:var(--teal-bg);
+}
+.author-links svg{
+  width:13px; height:13px;
+}
 </style>
 
 
@@ -628,14 +699,28 @@
 </div>
 <div id="status-bar" class="status-bar"></div>
         <div id="schedule"></div>
-    <footer>
-      Расписание может уточняться деканатом · сверяйтесь с оригиналом при важных занятиях
-      <span class="credit">Создатель · VOINA ROMAN NIKOLAEVICH</span>
-      <a href="https://t.me/machiavellianismus" target="_blank" rel="noopener" aria-label="Связь с разработчиком" style="display:inline-block;margin-top:8px;color:var(--ink-soft);text-decoration:underline">Связь с разработчиком</a>
-       <span style="display:block;margin-top:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">
-    обновлено <span id="build-date">—</span>
-  </span>
-    </footer>
+<footer>
+  <div class="foot-note">
+    Расписание может уточняться деканатом · сверяйтесь с оригиналом при важных занятиях
+  </div>
+
+  <div class="author-card">
+    <div class="author-avatar">VR</div>
+    <div class="author-info">
+      <div class="author-name">Voina Roman</div>
+      <div class="author-role">разработчик · 3 курс ФП</div>
+      <div class="author-links">
+        <a href="https://t.me/machiavellianismus" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor"
+              d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.33-4.77 8.67-7.83c.38-.33-.08-.52-.58-.19L6.95 13.1 2.3 11.64c-1.01-.32-1.03-1.01.21-1.5l18-6.94c.84-.31 1.57.2 1.43 1.1Z"/>
+          </svg>
+          Telegram
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
   </div>
 </div>
 
