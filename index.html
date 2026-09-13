@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<script>
+  // Выбор темы до отрисовки — никакого FOUC
+  (function () {
+    try {
+      var saved = localStorage.getItem('schedule-theme');
+      var dark = saved === 'dark' ||
+                 (!saved && matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    } catch (e) {}
+  })();
+</script>
 <script src="./questions.js" defer></script>
 <script src="./app.js" defer></script>
 <script src="./pwa.js" defer></script>
@@ -13,534 +24,39 @@
   gtag('js', new Date());
   gtag('config', 'G-74Q3M2K18C');
 </script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Расписание">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#1C2333">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Расписание">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1C2333" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1319" media="(prefers-color-scheme: dark)">
 
 <title>Расписание 4501 · 4502 · 4503</title>
+  <!-- Иконки сайта -->
+  <link rel="icon" href="./favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  ...
+<link rel="manifest" href="./manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#1C2333;
-    --ink-soft:#3A4256;
-    --paper:#EEF0EC;
-    --paper-card:#FBFBF9;
-    --line:#D8D9D2;
-    --gold:#9A7B2E;
-    --gold-bg:#F4EDDB;
-    --teal:#276258;
-    --teal-bg:#DEEBE7;
-    --plum:#6A4468;
-    --plum-bg:#EBE1E9;
-    --muted:#6B7280;
-  }
-
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'IBM Plex Sans', sans-serif;
-    min-height:100vh;
-    -webkit-font-smoothing:antialiased;
-  }
-  .hidden-radio{
-    position:absolute;
-    opacity:0;
-    pointer-events:none;
-    width:0;height:0;
-  }
- .header{
-  background:var(--ink);
-  color:#EDEBE2;
-  padding:24px 20px 18px;
-}
-.header-inner{
-  max-width:760px;
-  margin:0 auto;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-}
-
-.header-text{
-  flex:1 1 auto;
-  min-width:0;
-}
-.header-text{ flex:1 1 auto; min-width:0; }
-.header-text{ flex:1 1 auto; min-width:0; }
-  .header h1{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    font-size:clamp(24px,5.5vw,32px);
-    margin:0;
-    line-height:1.05;
-  }
-  .header .sub{ color:#B7BECF; font-size:14px; margin-top:8px; }
-
-.switcher{
-  background:var(--ink);
-  padding:0 20px 18px;
-}
-
-.header-meme{
-  flex:0 0 auto;
-  width:clamp(64px, 14vw, 110px);
-  height:clamp(64px, 14vw, 110px);
-  object-fit:cover;
-  border-radius:clamp(12px, 3vw, 20px);
-  transform:rotate(-4deg);
-  box-shadow:0 4px 14px rgba(0,0,0,.35);
-}
-.switcher-inner{
-  max-width:760px;
-  margin:0 auto;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-.switcher-row{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  min-height:34px;
-}
-.switcher-label{
-  flex:0 0 84px;
-  font:500 10.5px 'IBM Plex Mono', monospace;
-  letter-spacing:.09em;
-  text-transform:uppercase;
-  color:#7A849A;
-  user-select:none;
-}
-.lessons{
-  animation:slide-in .25s ease-out;
-}
-@keyframes slide-in{
-  from{ opacity:0; transform:translateY(8px); }
-  to{ opacity:1; transform:translateY(0); }
-}
-.switcher-tabs{
-  display:flex;
-  gap:6px;
-  flex:1 1 auto;
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  padding-bottom:2px;
-}
-.switcher-tabs::-webkit-scrollbar{ display:none; }
-.switcher-tab{
-  flex:0 0 auto;
-  border:1px solid #687187;
-  background:transparent;
-  color:#D8DCE6;
-  border-radius:999px;
-  padding:7px 14px;
-  font:600 13px 'IBM Plex Sans', sans-serif;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-  transition:background .12s, color .12s, border-color .12s;
-}
-.switcher-tab.active{
-  background:#EDEBE2;
-  color:var(--ink);
-  border-color:#EDEBE2;
-}
-
-.header .eyebrow{
-  font:500 11px 'IBM Plex Mono', monospace;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:#9AA3B8;
-  margin:0 0 6px;
-}
-
-  .wrap{ max-width:760px; margin:0 auto; padding:18px 16px 50px; }
-
-  .day-tabs{
-    display:flex;
-    gap:4px;
-    overflow-x:auto;
-    padding-bottom:4px;
-    margin-bottom:16px;
-    border-bottom:1px solid var(--line);
-    -ms-overflow-style:none;
-    scrollbar-width:none;
-  }
-  .day-tabs::-webkit-scrollbar{ display:none; }
-  .day-tab{
-    flex:0 0 auto;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:3px;
-    padding:8px 14px 9px;
-    cursor:pointer;
-    white-space:nowrap;
-    border-bottom:3px solid transparent;
-    margin-bottom:-1px;
-    -webkit-tap-highlight-color:transparent;
-    user-select:none;
-  }
-  .day-tab .day-num{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12.5px;
-    font-weight:600;
-    color:var(--muted);
-    line-height:1;
-    padding:2px 6px;
-    border-radius:100px;
-  }
-  .day-tab .day-num.is-today{
-    background:var(--gold);
-    color:#fff;
-  }
-  .day-tab .day-name{
-    font-size:14.5px;
-    font-weight:500;
-    color:var(--muted);
-    line-height:1;
-  }
-
-  .week-nav{
-    display:none;
-    align-items:center;
-    justify-content:space-between;
-    background:var(--paper-card);
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:6px 6px;
-    margin-bottom:18px;
-  }
-  body.is-current-week .week-label .range{
-  color:var(--teal);
-}
-  .nav-btn{
-    width:38px;height:38px;
-    border-radius:8px;
-    font-size:18px;
-    color:var(--ink);
-    cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    -webkit-tap-highlight-color:transparent;
-    user-select:none;
-  }
-  .nav-btn.disabled{ color:var(--line); cursor:default; }
-  .week-label{ text-align:center; flex:1; }
-  .week-label .range{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    font-size:16px;
-  }
-  .week-label .rel{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
-    color:var(--gold);
-    text-transform:uppercase;
-    letter-spacing:.04em;
-    margin-top:3px;
-    min-height:13px;
-  }
-
-  .panel{ display:none; }
-
-  .lessons{ display:flex; flex-direction:column; gap:10px; }
-  .lesson-card{
-    display:grid;
-    grid-template-columns:64px 1fr;
-    gap:14px;
-    background:var(--paper-card);
-    border:1px solid var(--line);
-    border-left:4px solid var(--muted);
-    border-radius:8px;
-    padding:13px 14px;
-    box-shadow:0 1px 2px rgba(0,0,0,.03);
-    transition:box-shadow .15s;
-  }
-  .lesson-card:hover{
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
-}
-  .lesson-card.type-Лекция{ border-left-color:var(--gold); }
-  .lesson-card.type-Практика{ border-left-color:var(--teal); }
-  .lesson-card.type-Семинар{ border-left-color:var(--plum); }
-
-  .lesson-card.is-now{
-    position:relative;
-    border-color:var(--teal);
-    border-left-color:var(--teal);
-    background:var(--teal-bg);
-    animation:pulse-now 2.4s ease-in-out infinite;
-    transform:translateY(-2px);
-    box-shadow:0 6px 20px rgba(39,98,88,.15);
-  }
-  @keyframes pulse-now{
-    0%,100%{ box-shadow:0 0 0 0 rgba(39,98,88,.35); }
-    50%{ box-shadow:0 0 0 4px rgba(39,98,88,0); }
-  }
-  .lesson-card.is-now::before{
-    content:'\25CF Сейчас';
-    position:absolute;
-    top:-9px;
-    right:12px;
-    background:var(--teal);
-    color:#fff;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10px;
-    font-weight:600;
-    letter-spacing:.03em;
-    padding:3px 9px;
-    border-radius:100px;
-  }
-
-  .lesson-time{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12.5px;
-    color:var(--ink-soft);
-    line-height:1.3;
-    padding-top:2px;
-  }
-  .lesson-time .num{ display:block; font-size:11px; color:var(--muted); margin-bottom:2px; }
-  .lesson-body .subject{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    font-size:16.5px;
-    margin:0 0 4px;
-    line-height:1.25;
-  }
-  .lesson-body .details{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
-  .badge{
-    display:inline-block;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
-    letter-spacing:.03em;
-    padding:2px 7px;
-    border-radius:100px;
-    margin-bottom:6px;
-  }
-  .badge.type-Лекция{ background:var(--gold-bg); color:var(--gold); }
-  .badge.type-Практика{ background:var(--teal-bg); color:var(--teal); }
-  .badge.type-Семинар{ background:var(--plum-bg); color:var(--plum); }
-
-  .no-data{ text-align:center; padding:50px 20px; color:var(--muted); }
-  .no-data .big{
-    font-family:'Fraunces', serif;
-    font-size:19px;
-    color:var(--ink-soft);
-    margin-bottom:6px;
-  }
-
-  footer{
-    text-align:center;
-    color:var(--muted);
-    font-size:12px;
-    padding:20px 0 0;
-    line-height:1.7;
-  }
-  footer .credit{
-    display:block;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:15px;
-    font-weight:600;
-    letter-spacing:.06em;
-    color:var(--ink-soft);
-    margin-top:10px;
-  }
-
-  .week-nav.active{display:flex}
-  .day-tab.active{border-bottom-color:var(--gold)}
-  .day-tab.active .day-name,.day-tab.active .day-num:not(.is-today){color:var(--ink)}
-  .day-tab.active .day-name{font-weight:600}
-  .panel.active{display:block}
-  .seminar-q{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
-.seminar-q summary{
-  cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;
-  color:var(--plum);list-style:none;user-select:none;
-}
-.seminar-q summary::-webkit-details-marker{display:none}
-.seminar-q summary::before{content:'▸ ';display:inline-block;transition:transform .15s}
-.seminar-q[open] summary::before{transform:rotate(90deg)}
-.seminar-q ol{margin:8px 0 0 0;padding:0;list-style:none;font-size:13.5px;line-height:1.55;color:var(--ink-soft)}
-.seminar-q-item{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:7px 8px;border-radius:6px;
-  border:1px solid transparent;
-  transition:background .12s,border-color .12s;
-}
-.seminar-q-item + .seminar-q-item{margin-top:4px}
-.seminar-q-item:hover{background:var(--paper);border-color:var(--line)}
-.seminar-q-item .q-num{
-  flex:0 0 auto;font-family:'IBM Plex Mono',monospace;font-size:11px;
-  color:var(--muted);padding-top:2px;min-width:18px;
-}
-.seminar-q-item .q-text{flex:1 1 auto;min-width:0}
-.seminar-q-item .q-slot{
-  flex:0 0 auto;margin-left:auto;
-  display:flex;align-items:center;
-  min-height:22px;
-}
-/* Заготовки под будущее бронирование */
-.seminar-q-item.is-booked{background:var(--plum-bg);border-color:var(--plum)}
-.seminar-q-item.is-mine{background:var(--teal-bg);border-color:var(--teal)}
-.q-badge{
-  font-family:'IBM Plex Mono',monospace;font-size:10.5px;
-  padding:2px 8px;border-radius:100px;
-  background:var(--plum-bg);color:var(--plum);white-space:nowrap;
-}
-.q-badge.is-mine{background:var(--teal-bg);color:var(--teal)}
-.q-btn{
-  font:600 11px 'IBM Plex Mono',monospace;
-  padding:3px 9px;border-radius:100px;border:1px solid var(--line);
-  background:transparent;color:var(--ink-soft);cursor:pointer;
-}
-.q-btn:hover{background:var(--paper)}
-/* ─── Статус-бар над расписанием ─────────────────────── */
-.status-bar{
-  display:none;
-  align-items:center;
-  gap:10px;
-  padding:11px 14px;
-  border-radius:10px;
-  background:var(--paper-card);
-  border:1px solid var(--line);
-  margin-bottom:14px;
-  font-size:14px;
-  line-height:1.35;
-}
-.status-bar.show{ display:flex; }
-.status-bar .sb-icon{
-  flex:0 0 auto;
-  width:26px;height:26px;
-  border-radius:100px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;
-  background:var(--teal-bg);
-  color:var(--teal);
-  font-family:'IBM Plex Sans', sans-serif;
-}
-.status-bar .sb-text{ flex:1 1 auto; min-width:0; }
-.status-bar .sb-text b{
-  font-family:'Fraunces', serif;
-  font-weight:600;
-}
-.status-bar .sb-timer{
-  flex:0 0 auto;
-  font-family:'IBM Plex Mono', monospace;
-  font-weight:600;
-  font-size:13px;
-  color:var(--teal);
-}
-
-/* Перемена — тёплый золотой */
-.status-bar.sb-break{
-  background:var(--gold-bg);
-  border-color:var(--gold);
-}
-.status-bar.sb-break .sb-icon{ background:#fff; color:var(--gold); }
-.status-bar.sb-break .sb-timer{ color:var(--gold); }
-
-/* Скоро пара — фиолетовый акцент */
-.status-bar.sb-soon{
-  background:var(--plum-bg);
-  border-color:var(--plum);
-}
-.status-bar.sb-soon .sb-icon{ background:#fff; color:var(--plum); }
-.status-bar.sb-soon .sb-timer{ color:var(--plum); }
-
-/* Свободен — серый */
-.status-bar.sb-free{
-  background:var(--paper);
-  border-color:var(--line);
-}
-.foot-note{
-  font-size:12px;
-  color:var(--muted);
-  line-height:1.6;
-  max-width:340px;
-  margin:0 auto 22px;
-}
-
-.author-card{
-  display:inline-flex;
-  align-items:center;
-  gap:14px;
-  padding:14px 20px 14px 14px;
-  background:var(--paper-card);
-  border:1px solid var(--line);
-  border-radius:14px;
-  text-align:left;
-}
-.author-avatar{
-  width:48px; height:48px;
-  border-radius:12px;
-  background:linear-gradient(135deg, var(--ink) 0%, var(--teal) 100%);
-  color:#EDEBE2;
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Fraunces', serif;
-  font-weight:600;
-  font-size:18px;
-  letter-spacing:.02em;
-  flex:0 0 auto;
-}
-.author-info{ min-width:0; }
-.author-name{
-  font-family:'Fraunces', serif;
-  font-weight:600;
-  font-size:16px;
-  color:var(--ink);
-  line-height:1.1;
-}
-.author-role{
-  font-family:'IBM Plex Mono', monospace;
-  font-size:10.5px;
-  color:var(--muted);
-  margin-top:3px;
-  letter-spacing:.02em;
-}
-.author-links{
-  margin-top:9px;
-  display:flex;
-  gap:6px;
-}
-.author-links a{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  font-size:11.5px;
-  font-weight:600;
-  color:var(--ink-soft);
-  text-decoration:none;
-  padding:3px 9px;
-  border-radius:100px;
-  border:1px solid var(--line);
-  transition:border-color .12s, color .12s, background .12s;
-}
-.author-links a:hover{
-  border-color:var(--teal);
-  color:var(--teal);
-  background:var(--teal-bg);
-}
-.author-links svg{
-  width:13px; height:13px;
-}
-</style>
-
-
+<link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+
 <div id="iosInstallHint" style="display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;background:#1C2333;color:#EDEBE2;border-radius:14px;padding:14px 16px;box-shadow:0 8px 30px rgba(0,0,0,.28);font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
   <div style="font-weight:600;font-size:15px;margin-bottom:6px">Добавь расписание на экран «Домой»</div>
   <div style="line-height:1.45;color:#C9CDD9">В Safari нажми <b>Поделиться</b> → <b>На экран «Домой»</b>. После добавления оно будет открываться как отдельное приложение.</div>
   <button id="iosInstallClose" style="margin-top:10px;border:0;border-radius:9px;padding:8px 12px;background:#EDEBE2;color:#1C2333;font-weight:600">Понятно</button>
 </div>
-
 
 <input type="radio" name="day" id="day-mon" class="hidden-radio" checked>
 <input type="radio" name="day" id="day-tue" class="hidden-radio">
@@ -574,10 +90,15 @@
       <h1>Расписание занятий</h1>
       <p class="sub">2026/2027 учебный год</p>
     </div>
-    <img src="./meme.jpg" alt="" class="header-meme">
-  </div>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Сменить тему">
+      <span class="theme-icon">🌙</span>
+    </button>
 </div>
-
+<blockquote class="header-quote">
+    <p>Учение — только свет, по народной пословице, — оно также и свобода. Ничто так не освобождает человека, как знание.</p>
+    <cite>И. С. Тургенев</cite>
+  </blockquote>
+  </div>
 <div class="switcher" id="switcher">
   <div class="switcher-inner">
     <div class="switcher-row" id="faculty-row" style="display:none">
@@ -595,132 +116,142 @@
   </div>
 </div>
 
-
 <div class="app">
   <div class="wrap">
-    <div class="day-tabs">
-      <label for="day-mon" class="day-tab"><span class="day-num" id="daynum-mon"></span><span class="day-name">Пн</span></label>
-      <label for="day-tue" class="day-tab"><span class="day-num" id="daynum-tue"></span><span class="day-name">Вт</span></label>
-      <label for="day-wed" class="day-tab"><span class="day-num" id="daynum-wed"></span><span class="day-name">Ср</span></label>
-      <label for="day-thu" class="day-tab"><span class="day-num" id="daynum-thu"></span><span class="day-name">Чт</span></label>
-      <label for="day-fri" class="day-tab"><span class="day-num" id="daynum-fri"></span><span class="day-name">Пт</span></label>
-      <label for="day-sat" class="day-tab"><span class="day-num" id="daynum-sat"></span><span class="day-name">Сб</span></label>
-    </div>
 
-    <div class="week-nav week-nav-0">
-  <span class="nav-btn disabled">&#8592;</span>
-  <div class="week-label"><div class="range">31 августа – 5 сентября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-1" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-1">
-  <label for="week-0" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">7 – 12 сентября</div><div class="rel">Текущая неделя</div></div>
-  <label for="week-2" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-2">
-  <label for="week-1" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">14 – 19 сентября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-3" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-3">
-  <label for="week-2" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">21 – 26 сентября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-4" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-4">
-  <label for="week-3" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">28 сентября – 3 октября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-5" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-5">
-  <label for="week-4" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">5 – 10 октября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-6" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-6">
-  <label for="week-5" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">12 – 17 октября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-7" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-7">
-  <label for="week-6" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">19 – 24 октября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-8" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-8">
-  <label for="week-7" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">26 – 31 октября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-9" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-9">
-  <label for="week-8" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">2 – 7 ноября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-10" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-10">
-  <label for="week-9" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">9 – 14 ноября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-11" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-11">
-  <label for="week-10" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">16 – 21 ноября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-12" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-12">
-  <label for="week-11" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">23 – 28 ноября</div><div class="rel">&nbsp;</div></div>
-  <label for="week-13" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-13">
-  <label for="week-12" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">30 ноября – 5 декабря</div><div class="rel">&nbsp;</div></div>
-  <label for="week-14" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-14">
-  <label for="week-13" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">7 – 12 декабря</div><div class="rel">&nbsp;</div></div>
-  <label for="week-15" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-15">
-  <label for="week-14" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">14 – 19 декабря</div><div class="rel">&nbsp;</div></div>
-  <label for="week-16" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-16">
-  <label for="week-15" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">21 – 26 декабря</div><div class="rel">&nbsp;</div></div>
-  <label for="week-17" class="nav-btn">&#8594;</label>
-</div>
-<div class="week-nav week-nav-17">
-  <label for="week-16" class="nav-btn">&#8592;</label>
-  <div class="week-label"><div class="range">28 декабря – 2 января</div><div class="rel">&nbsp;</div></div>
-  <span class="nav-btn disabled">&#8594;</span>
-</div>
-<div id="status-bar" class="status-bar"></div>
-        <div id="schedule"></div>
-<footer>
-  <div class="foot-note">
-    Расписание может уточняться деканатом · сверяйтесь с оригиналом при важных занятиях
-  </div>
+    <div class="sticky-bar">
+      <div class="day-tabs">
+        <label for="day-mon" class="day-tab"><span class="day-num" id="daynum-mon"></span><span class="day-name">Пн</span></label>
+        <label for="day-tue" class="day-tab"><span class="day-num" id="daynum-tue"></span><span class="day-name">Вт</span></label>
+        <label for="day-wed" class="day-tab"><span class="day-num" id="daynum-wed"></span><span class="day-name">Ср</span></label>
+        <label for="day-thu" class="day-tab"><span class="day-num" id="daynum-thu"></span><span class="day-name">Чт</span></label>
+        <label for="day-fri" class="day-tab"><span class="day-num" id="daynum-fri"></span><span class="day-name">Пт</span></label>
+        <label for="day-sat" class="day-tab"><span class="day-num" id="daynum-sat"></span><span class="day-name">Сб</span></label>
+      </div>
 
-  <div class="author-card">
-    <div class="author-avatar">VR</div>
-    <div class="author-info">
-      <div class="author-name">Voina Roman</div>
-      <div class="author-role">разработчик · 3 курс ФП</div>
-      <div class="author-links">
-        <a href="https://t.me/machiavellianismus" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor"
-              d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.33-4.77 8.67-7.83c.38-.33-.08-.52-.58-.19L6.95 13.1 2.3 11.64c-1.01-.32-1.03-1.01.21-1.5l18-6.94c.84-.31 1.57.2 1.43 1.1Z"/>
-          </svg>
-          Telegram
-        </a>
+      <div class="week-nav week-nav-0">
+        <span class="nav-btn disabled">&#8592;</span>
+        <div class="week-label"><div class="range">31 августа – 5 сентября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-1" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-1">
+        <label for="week-0" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">7 – 12 сентября</div><div class="rel">Текущая неделя</div></div>
+        <label for="week-2" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-2">
+        <label for="week-1" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">14 – 19 сентября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-3" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-3">
+        <label for="week-2" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">21 – 26 сентября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-4" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-4">
+        <label for="week-3" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">28 сентября – 3 октября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-5" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-5">
+        <label for="week-4" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">5 – 10 октября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-6" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-6">
+        <label for="week-5" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">12 – 17 октября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-7" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-7">
+        <label for="week-6" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">19 – 24 октября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-8" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-8">
+        <label for="week-7" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">26 – 31 октября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-9" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-9">
+        <label for="week-8" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">2 – 7 ноября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-10" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-10">
+        <label for="week-9" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">9 – 14 ноября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-11" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-11">
+        <label for="week-10" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">16 – 21 ноября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-12" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-12">
+        <label for="week-11" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">23 – 28 ноября</div><div class="rel">&nbsp;</div></div>
+        <label for="week-13" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-13">
+        <label for="week-12" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">30 ноября – 5 декабря</div><div class="rel">&nbsp;</div></div>
+        <label for="week-14" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-14">
+        <label for="week-13" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">7 – 12 декабря</div><div class="rel">&nbsp;</div></div>
+        <label for="week-15" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-15">
+        <label for="week-14" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">14 – 19 декабря</div><div class="rel">&nbsp;</div></div>
+        <label for="week-16" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-16">
+        <label for="week-15" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">21 – 26 декабря</div><div class="rel">&nbsp;</div></div>
+        <label for="week-17" class="nav-btn">&#8594;</label>
+      </div>
+      <div class="week-nav week-nav-17">
+        <label for="week-16" class="nav-btn">&#8592;</label>
+        <div class="week-label"><div class="range">28 декабря – 2 января</div><div class="rel">&nbsp;</div></div>
+        <span class="nav-btn disabled">&#8594;</span>
       </div>
     </div>
-  </div>
-</footer>
+
+    <div id="status-bar" class="status-bar"></div>
+    <div id="schedule"></div>
+
+    <footer>
+      <div class="foot-note">
+        Расписание может уточняться деканатом · сверяйтесь с оригиналом при важных занятиях
+      </div>
+
+      <div class="author-card">
+        <div class="author-avatar">VR</div>
+        <div class="author-info">
+          <div class="author-name">Voina Roman</div>
+          <div class="author-role">разработчик · 3 курс ФП</div>
+          <div class="author-links">
+            <a href="https://t.me/machiavellianismus" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor"
+                  d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.33-4.77 8.67-7.83c.38-.33-.08-.52-.58-.19L6.95 13.1 2.3 11.64c-1.01-.32-1.03-1.01.21-1.5l18-6.94c.84-.31 1.57.2 1.43 1.1Z"/>
+              </svg>
+              Telegram
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="build-info" id="build-info" title="Нажми, чтобы проверить обновление">
+        <span class="build-dot"></span>
+        <span>Обновлено: <b id="build-date">—</b></span>
+      </div>
+    </footer>
+
   </div>
 </div>
 

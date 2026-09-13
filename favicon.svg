@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><metadata><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"><rdf:Description><dc:creator>RealFaviconGenerator</dc:creator><dc:source>https://realfavicongenerator.net</dc:source></rdf:Description></rdf:RDF></metadata><style>
+    #light-icon {
+      display: inline;
+    }
+    #dark-icon {
+      display: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #light-icon {
+        display: none;
+      }
+      #dark-icon {
+        display: inline;
+      }
+    }
+  </style><g id="light-icon"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><g clip-path="url(#SvgjsClipPath1117)"><rect width="1000" height="1000" fill="#ffffff"></rect><g transform="matrix(5,0,0,5,0,0)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200" width="200" height="200"><rect width="200" height="200" fill="url('#gradient')"></rect><defs><linearGradient id="gradient" gradientTransform="rotate(45 0.5 0.5)"><stop offset="0%" stop-color="#ffffff"></stop><stop offset="100%" stop-color="#ffffff"></stop></linearGradient><clipPath id="SvgjsClipPath1117"><rect width="1000" height="1000" x="0" y="0" rx="250" ry="250"></rect></clipPath></defs><g><g fill="#000000" transform="matrix(2.624636572302984,0,0,2.624636572302984,33.073722516409575,118.6605412459866)" stroke="#000000" stroke-width="0.2"><path d="M9.98 0L9.15-2.66L4.45-2.66L3.63 0L-0.03 0L5.19-14.22L8.41-14.22L13.66 0L9.98 0ZM6.80-10.23L5.27-5.30L8.33-5.30L6.80-10.23ZM14.70-14.22L19.20-14.22L22.37-4.33L25.54-14.22L30.05-14.22L30.05 0L26.61 0L26.61-3.32L26.94-10.12L23.51 0L21.24 0L17.79-10.13L18.13-3.32L18.13 0L14.70 0L14.70-14.22ZM35.88-14.22L35.88 0L32.46 0L32.46-14.22L35.88-14.22ZM47.34 0L46.51-2.66L41.82-2.66L41.00 0L37.33 0L42.55-14.22L45.77-14.22L51.03 0L47.34 0ZM44.16-10.23L42.64-5.30L45.69-5.30L44.16-10.23Z"></path></g></g></svg></g></g></svg></g><g id="dark-icon"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><g><g transform="matrix(5,0,0,5,0,0)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200" width="200" height="200"><rect width="200" height="200" fill="url('#gradient')"></rect><defs><linearGradient id="gradient" gradientTransform="rotate(45 0.5 0.5)"><stop offset="0%" stop-color="#ffffff"></stop><stop offset="100%" stop-color="#ffffff"></stop></linearGradient></defs><g><g fill="#000000" transform="matrix(2.624636572302984,0,0,2.624636572302984,33.073722516409575,118.6605412459866)" stroke="#000000" stroke-width="0.2"><path d="M9.98 0L9.15-2.66L4.45-2.66L3.63 0L-0.03 0L5.19-14.22L8.41-14.22L13.66 0L9.98 0ZM6.80-10.23L5.27-5.30L8.33-5.30L6.80-10.23ZM14.70-14.22L19.20-14.22L22.37-4.33L25.54-14.22L30.05-14.22L30.05 0L26.61 0L26.61-3.32L26.94-10.12L23.51 0L21.24 0L17.79-10.13L18.13-3.32L18.13 0L14.70 0L14.70-14.22ZM35.88-14.22L35.88 0L32.46 0L32.46-14.22L35.88-14.22ZM47.34 0L46.51-2.66L41.82-2.66L41.00 0L37.33 0L42.55-14.22L45.77-14.22L51.03 0L47.34 0ZM44.16-10.23L42.64-5.30L45.69-5.30L44.16-10.23Z"></path></g></g></svg></g></g></svg></g></svg>

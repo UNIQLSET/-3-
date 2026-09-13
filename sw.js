@@ -1,8 +1,7 @@
 // Автообновляемый Service Worker — без ручных версий.
-const CACHE = 'schedule-runtime-v1';
+const CACHE = 'schedule-runtime-v2';
 
 self.addEventListener('install', e => {
-  // Ничего не precache-им принудительно — просто активируемся.
   e.waitUntil(self.skipWaiting());
 });
 
@@ -20,42 +19,20 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   const url = new URL(req.url);
 
-  // Только свой origin
   if (url.origin !== location.origin) return;
-  // Не трогаем не-GET
   if (req.method !== 'GET') return;
 
-
-  const isCode =
-    req.mode === 'navigate' ||
-    /\.(html|js|css|json|webmanifest)$/i.test(url.pathname) ||
-    (req.headers.get('accept') || '').includes('text/html');
-
-  if (isCode) {
-    e.respondWith(
-      fetch(req)
-        .then(res => {
+  // ЕДИНАЯ стратегия: network-first для всего.
+  // Онлайн всегда тянем свежее; кэш — только офлайн-запаска.
+  e.respondWith(
+    fetch(req, { cache: 'no-cache' })
+      .then(res => {
+        if (res && res.status === 200 && res.type === 'basic') {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put(req, copy));
-          return res;
-        })
-        .catch(() => caches.match(req))
-    );
-    return;
-  }
-
-
-  e.respondWith(
-    caches.open(CACHE).then(cache =>
-      cache.match(req).then(cached => {
-        const network = fetch(req)
-          .then(res => {
-            cache.put(req, res.clone());
-            return res;
-          })
-          .catch(() => cached);
-        return cached || network;
+        }
+        return res;
       })
-    )
+      .catch(() => caches.match(req))
   );
 });
