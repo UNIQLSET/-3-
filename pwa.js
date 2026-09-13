@@ -212,4 +212,189 @@
     const hint = document.getElementById('iosInstallHint');
     if (hint) hint.style.display = 'none';
   };
+    // ─── 4. Уведомление об обновлении иконки (только iOS PWA) ────
+  (function initIconUpdateNotice() {
+
+    // ⚠️ УВЕЛИЧИВАЙ ЭТО ЧИСЛО каждый раз, когда меняешь иконку.
+    // 1 → 2 → 3 → ... Сравнивается с тем, что уже сохранено у юзера.
+    const ICON_VERSION = 2;
+
+    // Показываем только в iOS и только когда приложение открыто
+    // с домашнего экрана (в обычном Safari не нужно — там юзер ещё не установил).
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    const isStandalone =
+      navigator.standalone === true ||
+      window.matchMedia('(display-mode: standalone)').matches;
+
+    if (!isIOS || !isStandalone) return;
+
+    // Уже видел эту версию — не мешаем
+    const seenVersion = parseInt(
+      localStorage.getItem('pwa-icon-version') || '0', 10
+    );
+    if (seenVersion >= ICON_VERSION) return;
+
+    // Если недавно нажимал «Позже» — уважаем сутки
+    const snoozeUntil = parseInt(
+      localStorage.getItem('pwa-icon-snooze') || '0', 10
+    );
+    if (snoozeUntil && Date.now() < snoozeUntil) return;
+
+    // Небольшая задержка, чтобы баннер не мигал при запуске
+    setTimeout(showNotice, 1200);
+
+    function showNotice() {
+      if (document.getElementById('icon-update-notice')) return;
+
+      injectStyles();
+
+      const notice = document.createElement('div');
+      notice.id = 'icon-update-notice';
+      notice.setAttribute('role', 'dialog');
+      notice.setAttribute('aria-live', 'polite');
+      notice.innerHTML = `
+        <div class="iun-head">
+          <div class="iun-icon">✨</div>
+          <div class="iun-title">Обновилась иконка приложения</div>
+        </div>
+        <p class="iun-body">
+          Мы обновили иконку расписания. Чтобы увидеть её на домашнем экране,
+          приложение нужно удалить и добавить заново.
+        </p>
+        <ol class="iun-steps">
+          <li>Зажмите иконку расписания → <b>Удалить приложение</b></li>
+          <li>Откройте сайт <b>в Safari</b></li>
+          <li>Нажмите <b>Поделиться</b> → <b>На экран «Домой»</b></li>
+        </ol>
+        <div class="iun-actions">
+          <button class="iun-primary" type="button">Понятно</button>
+          <button class="iun-secondary" type="button">Позже</button>
+        </div>
+      `;
+      document.body.appendChild(notice);
+
+      const dismiss = (snooze) => {
+        try {
+          if (snooze) {
+            // «Позже» — вернёмся через сутки
+            localStorage.setItem(
+              'pwa-icon-snooze',
+              String(Date.now() + 24 * 60 * 60 * 1000)
+            );
+          } else {
+            // «Понятно» — запоминаем версию, больше не покажем
+            localStorage.setItem('pwa-icon-version', String(ICON_VERSION));
+            localStorage.removeItem('pwa-icon-snooze');
+          }
+        } catch (e) {}
+        notice.classList.add('closing');
+        setTimeout(() => notice.remove(), 220);
+      };
+
+      notice.querySelector('.iun-primary').onclick = () => dismiss(false);
+      notice.querySelector('.iun-secondary').onclick = () => dismiss(true);
+    }
+
+    function injectStyles() {
+      if (document.getElementById('icon-update-styles')) return;
+      const style = document.createElement('style');
+      style.id = 'icon-update-styles';
+      style.textContent = `
+        #icon-update-notice {
+          position: fixed;
+          left: 12px; right: 12px;
+          bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+          z-index: 9999;
+          background: #1C2333;
+          color: #EDEBE2;
+          border-radius: 16px;
+          padding: 18px 18px 16px;
+          box-shadow: 0 12px 40px rgba(0,0,0,.4);
+          font: 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          animation: iunUp .35s cubic-bezier(.2,.9,.3,1);
+          max-width: 500px;
+          margin: 0 auto;
+        }
+        @keyframes iunUp {
+          from { opacity: 0; transform: translateY(24px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        #icon-update-notice.closing {
+          animation: iunDown .22s ease-in forwards;
+        }
+        @keyframes iunDown {
+          from { opacity: 1; transform: translateY(0); }
+          to   { opacity: 0; transform: translateY(24px); }
+        }
+        #icon-update-notice .iun-head {
+          display: flex; align-items: center; gap: 10px;
+          margin-bottom: 10px;
+        }
+        #icon-update-notice .iun-icon {
+          width: 34px; height: 34px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #276258 0%, #1C2333 100%);
+          display: flex; align-items: center; justify-content: center;
+          font-size: 16px; flex-shrink: 0;
+        }
+        #icon-update-notice .iun-title {
+          font-family: 'Fraunces', Georgia, serif;
+          font-weight: 600; font-size: 16px; line-height: 1.15;
+        }
+        #icon-update-notice .iun-body {
+          color: #C9CDD9; line-height: 1.5; font-size: 13.5px;
+          margin: 0 0 14px;
+        }
+        #icon-update-notice .iun-steps {
+          list-style: none; padding: 0; margin: 0 0 16px;
+          counter-reset: iunstep;
+          display: flex; flex-direction: column; gap: 8px;
+        }
+        #icon-update-notice .iun-steps li {
+          counter-increment: iunstep;
+          position: relative;
+          padding-left: 30px;
+          color: #D8DCE6; font-size: 13px; line-height: 1.4;
+        }
+        #icon-update-notice .iun-steps li::before {
+          content: counter(iunstep);
+          position: absolute; left: 0; top: 0;
+          width: 20px; height: 20px;
+          border-radius: 50%;
+          background: rgba(255,255,255,.1);
+          color: #EDEBE2;
+          font: 600 11px/20px 'IBM Plex Mono', monospace;
+          text-align: center;
+        }
+        #icon-update-notice .iun-steps b { color: #EDEBE2; font-weight: 600; }
+        #icon-update-notice .iun-actions {
+          display: flex; gap: 8px; flex-wrap: wrap;
+        }
+        #icon-update-notice button {
+          flex: 1; min-width: 120px;
+          border: 0; border-radius: 10px;
+          padding: 11px 14px;
+          font: 600 13.5px -apple-system, BlinkMacSystemFont, sans-serif;
+          cursor: pointer;
+          -webkit-tap-highlight-color: transparent;
+        }
+        #icon-update-notice .iun-primary {
+          background: #EDEBE2; color: #1C2333;
+        }
+        #icon-update-notice .iun-primary:active { transform: scale(.98); }
+        #icon-update-notice .iun-secondary {
+          background: transparent;
+          color: #8E97AD;
+          border: 1px solid rgba(255,255,255,.15);
+        }
+        #icon-update-notice .iun-secondary:active {
+          background: rgba(255,255,255,.06);
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  })();
 })();
