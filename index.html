@@ -223,35 +223,38 @@
 
     <div id="status-bar" class="status-bar"></div>
     <div id="schedule"></div>
+<footer>
+  <div class="footer-inner">
+    <!-- Примечание -->
+    <div class="foot-note">
+      <span class="foot-icon">📌</span>
+      <span>Расписание может уточняться деканатом · сверяйтесь с оригиналом при важных занятиях</span>
+    </div>
 
-    <footer>
-      <div class="foot-note">
-        Расписание может уточняться деканатом · сверяйтесь с оригиналом при важных занятиях
-      </div>
-
+    <!-- Нижняя часть: автор + обновление -->
+    <div class="footer-bottom">
       <div class="author-card">
         <div class="author-avatar">VR</div>
         <div class="author-info">
           <div class="author-name">Voina Roman</div>
           <div class="author-role">разработчик · 3 курс ФП</div>
-          <div class="author-links">
-            <a href="https://t.me/machiavellianismus" target="_blank" rel="noopener">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path fill="currentColor"
-                  d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.33-4.77 8.67-7.83c.38-.33-.08-.52-.58-.19L6.95 13.1 2.3 11.64c-1.01-.32-1.03-1.01.21-1.5l18-6.94c.84-.31 1.57.2 1.43 1.1Z"/>
-              </svg>
-              Telegram
-            </a>
-          </div>
         </div>
+        <a href="https://t.me/machiavellianismus" target="_blank" rel="noopener" class="author-link-btn">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor"
+              d="M21.94 4.3 18.9 19.1c-.23 1.02-.84 1.27-1.7.79l-4.7-3.46-2.27 2.18c-.25.25-.46.46-.94.46l.33-4.77 8.67-7.83c.38-.33-.08-.52-.58-.19L6.95 13.1 2.3 11.64c-1.01-.32-1.03-1.01.21-1.5l18-6.94c.84-.31 1.57.2 1.43 1.1Z"/>
+          </svg>
+          Telegram
+        </a>
       </div>
 
       <div class="build-info" id="build-info" title="Нажми, чтобы проверить обновление">
         <span class="build-dot"></span>
         <span>Обновлено: <b id="build-date">—</b></span>
       </div>
-    </footer>
-
+    </div>
+  </div>
+</footer>
   </div>
 </div>
 
