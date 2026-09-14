@@ -119,21 +119,56 @@ body{
   justify-content:space-between;
   gap:16px;
 }
-.header-text{ flex:1 1 auto; min-width:0; }
-.header h1{
+
+/* ─── Логотип-заголовок ─── */
+.brand{
+  flex:1 1 auto;
+  min-width:0;
+  margin:0;
+  text-align:center;
   font-family:'Fraunces', serif;
   font-weight:600;
-  font-size:clamp(24px,5.5vw,32px);
-  margin:0;
+  font-size:clamp(30px, 6.4vw, 46px);
   line-height:1.05;
+  letter-spacing:-0.015em;
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:14px;
+  text-shadow:0 0 60px rgba(224,183,91,.18);
 }
-.header .sub{ color:var(--header-muted); font-size:14px; margin-top:8px; }
-.header .eyebrow{
-  font:500 11px 'IBM Plex Mono', monospace;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:var(--eyebrow);
-  margin:0 0 6px;
+.brand-word{
+  color:var(--header-fg);
+}
+.brand-emblem{
+  position:relative;
+  color:transparent;
+  background:linear-gradient(135deg,
+    #F7E1A1 0%,
+    #E0B75B 45%,
+    #B98D33 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  padding-bottom:8px;
+  /* лёгкий «металлический» блик */
+  text-shadow:0 1px 0 rgba(0,0,0,.18);
+}
+.brand-emblem::after{
+  content:'';
+  position:absolute;
+  left:6%;
+  right:6%;
+  bottom:0;
+  height:2px;
+  border-radius:2px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(224,183,91,.55) 25%,
+    rgba(224,183,91,.95) 50%,
+    rgba(224,183,91,.55) 75%,
+    transparent 100%);
+  filter:drop-shadow(0 0 6px rgba(224,183,91,.45));
 }
 
 /* Кнопка темы */
@@ -706,7 +741,44 @@ body.is-current-week .week-head .week-month{ color:var(--teal); }
   color:var(--ink-soft);
   margin-bottom:6px;
 }
+/* ─── Скелетон загрузки ─── */
+.lesson-card.skeleton{
+  pointer-events:none;
+  border-left-color:var(--line);
+  box-shadow:0 1px 2px rgba(0,0,0,.03);
+  animation:fade-in .18s ease-out backwards;
+}
+.lesson-card.skeleton:nth-child(1){ animation-delay:0s; }
+.lesson-card.skeleton:nth-child(2){ animation-delay:.04s; }
+.lesson-card.skeleton:nth-child(3){ animation-delay:.08s; }
+.lesson-card.skeleton:nth-child(4){ animation-delay:.12s; }
+.lesson-card.skeleton:nth-child(5){ animation-delay:.16s; }
 
+.skel-num, .skel-time, .skel-badge, .skel-title, .skel-line{
+  display:inline-block;
+  border-radius:6px;
+  background:linear-gradient(90deg,
+    color-mix(in srgb, var(--line) 70%, transparent) 0%,
+    color-mix(in srgb, var(--ink) 10%, transparent) 50%,
+    color-mix(in srgb, var(--line) 70%, transparent) 100%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s linear infinite;
+}
+.skel-num{ width:32px; height:10px; margin-bottom:8px; }
+.skel-time{ width:46px; height:12px; display:block; }
+.skel-badge{ width:66px; height:14px; border-radius:100px; margin-bottom:10px; }
+.skel-title{ display:block; height:16px; width:62%; margin-bottom:10px; border-radius:5px; }
+.skel-line{ display:block; height:11px; width:88%; margin-bottom:6px; }
+.skel-line.short{ width:54%; }
+
+@keyframes shimmer{
+  0%  { background-position:200% 0; }
+  100%{ background-position:-200% 0; }
+}
+@keyframes fade-in{
+  from{ opacity:0; }
+  to  { opacity:1; }
+}
 /* ═══════════════════════════════════════════════════
    10. ВОПРОСЫ К СЕМИНАРАМ
    ═══════════════════════════════════════════════════ */
@@ -1173,7 +1245,13 @@ html[data-theme="dark"] .foot-note {
   .header h1{ font-size:20px; }
   .header .sub{ font-size:12px; margin-top:4px; }
   .header .eyebrow{ font-size:10px; margin-bottom:4px; }
-
+  .brand{
+    font-size:clamp(24px, 6.6vw, 32px);
+    gap:9px;
+    letter-spacing:-0.01em;
+  }
+  .brand-emblem{ padding-bottom:5px; }
+  .brand-emblem::after{ height:1.5px; }
   .header-quote{
     margin:18px auto 0;
     padding:0 16px;

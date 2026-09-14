@@ -1171,76 +1171,113 @@ function subjectHue(s) {
   return h;
 }
   // ─── РЕНДЕР РАСПИСАНИЯ ─────────────────────────────────────────
-function render() {
+let renderToken = 0;
+
+function buildSkeleton() {
+  let html = '<div class="panel active"><div class="lessons">';
+  for (let i = 0; i < 4; i++) {
+    html +=
+      '<div class="lesson-card skeleton">' +
+        '<div class="lesson-time">' +
+          '<span class="skel-num"></span>' +
+          '<span class="skel-time"></span>' +
+        '</div>' +
+        '<div class="lesson-body">' +
+          '<span class="skel-badge"></span>' +
+          '<span class="skel-title"></span>' +
+          '<span class="skel-line"></span>' +
+          '<span class="skel-line short"></span>' +
+        '</div>' +
+      '</div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function render(skeleton = false) {
+  const token = ++renderToken;
+
   const g = state.group;
   const d = checked('day');
   const w = +checked('week');
-  const row = DATA.find(x => x[0] === g && x[1] === d && x[2] === w);
   const root = $('#schedule');
-  root.innerHTML = '';
-  const p = document.createElement('div');
-  p.className = `panel panel-${g}-${d}-${w} active`;
 
-  if (!row?.[3]?.length) {
-    p.innerHTML = '<div class="no-data"><div class="big">Занятий нет</div>на этой неделе</div>';
-  } else {
-    const l = document.createElement('div');
-    l.className = 'lessons';
-    if (slideDir) {
-      l.classList.add(slideDir === 'left' ? 'slide-left' : 'slide-right');
-      slideDir = null;
-    }
+  const build = () => {
+    if (token !== renderToken) return; // устаревший рендер — игнорируем
 
-    // 1-й проход: считаем, сколько раз встречается одна и та же тема семинара за день
-    const topicTotal = {};
-    row[3].forEach(([type, , , subject, details]) => {
-      const parts = splitSubject(subject, details);
-      const effType = detectLessonType(type, parts[1]);
-      if (effType !== 'Семинар') return;
-      const { name, topic } = parseSubjectForQuestions(parts[0], parts[1]);
-      if (!topic) return;
-      const k = name + '|' + topic;
-      topicTotal[k] = (topicTotal[k] || 0) + 1;
-    });
+    root.innerHTML = '';
+    const row = DATA.find(x => x[0] === g && x[1] === d && x[2] === w);
+    const p = document.createElement('div');
+    p.className = `panel panel-${g}-${d}-${w} active`;
 
-    // 2-й проход: рендерим; дубликатам темы дописываем /1, /2, ...
-    const topicSeen = {};
-    row[3].forEach(([type, num, time, subject, details]) => {
-      const c = document.createElement('div');
-      const parts = splitSubject(subject, details);
-      const effType = detectLessonType(type, parts[1]);
+    if (!row?.[3]?.length) {
+      p.innerHTML = '<div class="no-data"><div class="big">Занятий нет</div>на этой неделе</div>';
+    } else {
+      const l = document.createElement('div');
+      l.className = 'lessons';
 
-      c.className = 'lesson-card' + (effType ? ' type-' + effType : '');
-
-      let questionsHtml = '';
-      if (effType === 'Семинар') {
+      const topicTotal = {};
+      row[3].forEach(([type, , , subject, details]) => {
+        const parts = splitSubject(subject, details);
+        const effType = detectLessonType(type, parts[1]);
+        if (effType !== 'Семинар') return;
         const { name, topic } = parseSubjectForQuestions(parts[0], parts[1]);
-        let effTopic = topic;
-        if (topic) {
-          const k = name + '|' + topic;
-          if ((topicTotal[k] || 0) > 1) {
-            topicSeen[k] = (topicSeen[k] || 0) + 1;
-            effTopic = topic + '/' + topicSeen[k];
-          }
-        }
-        questionsHtml = renderQuestions(parts[0], parts[1], effTopic);
-      }
+        if (!topic) return;
+        const k = name + '|' + topic;
+        topicTotal[k] = (topicTotal[k] || 0) + 1;
+      });
 
-      c.innerHTML =
-        `<div class="lesson-time"><span class="num">${num}</span>${time}</div>` +
-        `<div class="lesson-body">` +
-        `${effType ? `<span class="badge type-${effType}">${effType}</span><br>` : ''}` +
-        `<p class="subject">${parts[0]}</p>` +
-        `<div class="details">${parts[1]}</div>` +
-        `${questionsHtml}` +
-        `</div>`;
-      l.append(c);
-    });
-    p.append(l);
+      const topicSeen = {};
+      row[3].forEach(([type, num, time, subject, details]) => {
+        const c = document.createElement('div');
+        const parts = splitSubject(subject, details);
+        const effType = detectLessonType(type, parts[1]);
+
+        c.className = 'lesson-card' + (effType ? ' type-' + effType : '');
+
+        let questionsHtml = '';
+        if (effType === 'Семинар') {
+          const { name, topic } = parseSubjectForQuestions(parts[0], parts[1]);
+          let effTopic = topic;
+          if (topic) {
+            const k = name + '|' + topic;
+            if ((topicTotal[k] || 0) > 1) {
+              topicSeen[k] = (topicSeen[k] || 0) + 1;
+              effTopic = topic + '/' + topicSeen[k];
+            }
+          }
+          questionsHtml = renderQuestions(parts[0], parts[1], effTopic);
+        }
+
+        c.innerHTML =
+          `<div class="lesson-time"><span class="num">${num}</span>${time}</div>` +
+          `<div class="lesson-body">` +
+          `${effType ? `<span class="badge type-${effType}">${effType}</span><br>` : ''}` +
+          `<p class="subject">${parts[0]}</p>` +
+          `<div class="details">${parts[1]}</div>` +
+          `${questionsHtml}` +
+          `</div>`;
+        l.append(c);
+      });
+      p.append(l);
+    }
+    root.append(p);
+    applyActive();
+    updateActive();
+  };
+
+  if (skeleton) {
+    root.innerHTML = buildSkeleton();
+    // сразу обновляем только табы / week-info, панель пока фейковая
+    $$('.day-tab.active').forEach(x => x.classList.remove('active'));
+    $(`label[for="day-${d}"]`)?.classList.add('active');
+    const todayWeek = week(new Date());
+    document.body.classList.toggle('is-current-week', w === todayWeek);
+    updateWeekInfo();
+    setTimeout(build, 220);
+  } else {
+    build();
   }
-  root.append(p);
-  applyActive();
-  updateActive();
 }
 function applyActive() {
   $$('.panel.active,.day-tab.active').forEach(x => x.classList.remove('active'));
@@ -1291,7 +1328,7 @@ document.getElementById('week-prev')?.addEventListener('click', () => {
   slideDir = 'right';
   set('week-' + (w - 1));
   updateDayNumbers();
-  render();
+  render(true);
 });
 document.getElementById('week-next')?.addEventListener('click', () => {
   const w = +checked('week');
@@ -1299,7 +1336,7 @@ document.getElementById('week-next')?.addEventListener('click', () => {
   slideDir = 'left';
   set('week-' + (w + 1));
   updateDayNumbers();
-  render();
+  render(true);
 });
 function updateDayNumbers() {
   const w = +checked('week');
@@ -1472,16 +1509,17 @@ function renderStatus() {
 
 // ─── СОБЫТИЯ ───────────────────────────────────────────────────
 // Смена дня — просто рендерим
+// Смена дня
 $$('input[name="day"]').forEach(r => r.onchange = () => {
   updateDayNumbers();
-  render();
+  render(true);          // ← добавили true
 });
 
-// Смена недели — автоматически выбираем понедельник
+// Смена недели
 $$('input[name="week"]').forEach(r => r.onchange = () => {
   set('day-mon');
   updateDayNumbers();
-  render();
+  render(true);          // ← добавили true
 });
 
 // ─── ИНИЦИАЛИЗАЦИЯ ────────────────────────────────────────────
