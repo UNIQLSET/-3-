@@ -99,6 +99,7 @@ body{
   padding:24px 20px 18px;
   position:relative;
   overflow:hidden;
+  padding-top: calc(24px + env(safe-area-inset-top));
 }
 .header::after{
   content:'';
@@ -1233,7 +1234,8 @@ html[data-theme="dark"] .foot-note {
 /* ═══════════════════════════════════════════════════
    13. МОБИЛЬНАЯ СЖАТОСТЬ
    ═══════════════════════════════════════════════════ */
-@media (max-width: 680px) {
+
+   @media (max-width: 680px) {
   .footer-bottom { grid-template-columns: 1fr; gap: 12px; }
   .author-card   { padding: 12px 14px 12px 12px; }
   .author-link-btn { padding: 6px 12px; font-size: 11px; }
@@ -1241,7 +1243,10 @@ html[data-theme="dark"] .foot-note {
 }
 
 @media (max-width: 520px){
-  .header{ padding:14px 16px 10px; }
+  .header{ padding-top: calc(14px + env(safe-area-inset-top));
+    padding-right:16px;
+    padding-bottom:10px;
+    padding-left:16px; }
   .header h1{ font-size:20px; }
   .header .sub{ font-size:12px; margin-top:4px; }
   .header .eyebrow{ font-size:10px; margin-bottom:4px; }

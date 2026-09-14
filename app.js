@@ -1325,16 +1325,25 @@ function updateWeekInfo() {
 document.getElementById('week-prev')?.addEventListener('click', () => {
   const w = +checked('week');
   if (w <= 0) return;
+
   slideDir = 'right';
+
   set('week-' + (w - 1));
+  set('day-mon');
+
   updateDayNumbers();
   render(true);
 });
+
 document.getElementById('week-next')?.addEventListener('click', () => {
   const w = +checked('week');
   if (w >= MAX) return;
+
   slideDir = 'left';
+
   set('week-' + (w + 1));
+  set('day-mon');
+
   updateDayNumbers();
   render(true);
 });
