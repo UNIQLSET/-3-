@@ -90,8 +90,23 @@
       <h1>Расписание занятий</h1>
       <p class="sub">2026/2027 учебный год</p>
     </div>
-    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Сменить тему">
-      <span class="theme-icon">🌙</span>
+       <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Сменить тему">
+      <svg class="theme-svg" viewBox="0 0 24 24" aria-hidden="true">
+        <g class="sun">
+          <circle cx="12" cy="12" r="4.2"/>
+          <line x1="12" y1="2.4"  x2="12" y2="5"/>
+          <line x1="12" y1="19"   x2="12" y2="21.6"/>
+          <line x1="2.4" y1="12"  x2="5"  y2="12"/>
+          <line x1="19" y1="12"   x2="21.6" y2="12"/>
+          <line x1="5.2" y1="5.2" x2="7.1" y2="7.1"/>
+          <line x1="16.9" y1="16.9" x2="18.8" y2="18.8"/>
+          <line x1="5.2" y1="18.8" x2="7.1" y2="16.9"/>
+          <line x1="16.9" y1="7.1" x2="18.8" y2="5.2"/>
+        </g>
+        <g class="moon">
+          <path d="M20.6 13.1A8.6 8.6 0 1 1 10.9 3.4a6.7 6.7 0 0 0 9.7 9.7Z"/>
+        </g>
+      </svg>
     </button>
 </div>
 <blockquote class="header-quote">
@@ -119,117 +134,36 @@
 <div class="app">
   <div class="wrap">
 
-    <div class="sticky-bar">
-      <div class="day-tabs">
-        <label for="day-mon" class="day-tab"><span class="day-num" id="daynum-mon"></span><span class="day-name">Пн</span></label>
-        <label for="day-tue" class="day-tab"><span class="day-num" id="daynum-tue"></span><span class="day-name">Вт</span></label>
-        <label for="day-wed" class="day-tab"><span class="day-num" id="daynum-wed"></span><span class="day-name">Ср</span></label>
-        <label for="day-thu" class="day-tab"><span class="day-num" id="daynum-thu"></span><span class="day-name">Чт</span></label>
-        <label for="day-fri" class="day-tab"><span class="day-num" id="daynum-fri"></span><span class="day-name">Пт</span></label>
-        <label for="day-sat" class="day-tab"><span class="day-num" id="daynum-sat"></span><span class="day-name">Сб</span></label>
+       <div class="sticky-bar">
+      <div class="week-head">
+        <div class="week-month" id="week-month"></div>
+        <div class="week-rel"   id="week-rel"></div>
       </div>
 
-      <div class="week-nav week-nav-0">
-        <span class="nav-btn disabled">&#8592;</span>
-        <div class="week-label"><div class="range">31 августа – 5 сентября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-1" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-1">
-        <label for="week-0" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">7 – 12 сентября</div><div class="rel">Текущая неделя</div></div>
-        <label for="week-2" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-2">
-        <label for="week-1" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">14 – 19 сентября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-3" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-3">
-        <label for="week-2" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">21 – 26 сентября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-4" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-4">
-        <label for="week-3" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">28 сентября – 3 октября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-5" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-5">
-        <label for="week-4" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">5 – 10 октября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-6" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-6">
-        <label for="week-5" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">12 – 17 октября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-7" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-7">
-        <label for="week-6" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">19 – 24 октября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-8" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-8">
-        <label for="week-7" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">26 – 31 октября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-9" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-9">
-        <label for="week-8" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">2 – 7 ноября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-10" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-10">
-        <label for="week-9" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">9 – 14 ноября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-11" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-11">
-        <label for="week-10" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">16 – 21 ноября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-12" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-12">
-        <label for="week-11" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">23 – 28 ноября</div><div class="rel">&nbsp;</div></div>
-        <label for="week-13" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-13">
-        <label for="week-12" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">30 ноября – 5 декабря</div><div class="rel">&nbsp;</div></div>
-        <label for="week-14" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-14">
-        <label for="week-13" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">7 – 12 декабря</div><div class="rel">&nbsp;</div></div>
-        <label for="week-15" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-15">
-        <label for="week-14" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">14 – 19 декабря</div><div class="rel">&nbsp;</div></div>
-        <label for="week-16" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-16">
-        <label for="week-15" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">21 – 26 декабря</div><div class="rel">&nbsp;</div></div>
-        <label for="week-17" class="nav-btn">&#8594;</label>
-      </div>
-      <div class="week-nav week-nav-17">
-        <label for="week-16" class="nav-btn">&#8592;</label>
-        <div class="week-label"><div class="range">28 декабря – 2 января</div><div class="rel">&nbsp;</div></div>
-        <span class="nav-btn disabled">&#8594;</span>
+      <div class="day-nav">
+        <button type="button" class="day-arrow" id="week-prev" aria-label="Предыдущая неделя">‹</button>
+
+        <div class="day-tabs">
+          <label for="day-mon" class="day-tab"><span class="day-num" id="daynum-mon"></span><span class="day-name">Пн</span></label>
+          <label for="day-tue" class="day-tab"><span class="day-num" id="daynum-tue"></span><span class="day-name">Вт</span></label>
+          <label for="day-wed" class="day-tab"><span class="day-num" id="daynum-wed"></span><span class="day-name">Ср</span></label>
+          <label for="day-thu" class="day-tab"><span class="day-num" id="daynum-thu"></span><span class="day-name">Чт</span></label>
+          <label for="day-fri" class="day-tab"><span class="day-num" id="daynum-fri"></span><span class="day-name">Пт</span></label>
+          <label for="day-sat" class="day-tab"><span class="day-num" id="daynum-sat"></span><span class="day-name">Сб</span></label>
+        </div>
+
+        <button type="button" class="day-arrow" id="week-next" aria-label="Следующая неделя">›</button>
       </div>
     </div>
+
+    <div id="status-bar" class="status-bar"></div>
 
     <div id="status-bar" class="status-bar"></div>
     <div id="schedule"></div>
 <footer>
   <div class="footer-inner">
     <!-- Примечание -->
-    <div class="foot-note">
-      <span class="foot-icon">📌</span>
-      <span>Расписание может уточняться деканатом · сверяйтесь с оригиналом при важных занятиях</span>
-    </div>
+
 
     <!-- Нижняя часть: автор + обновление -->
     <div class="footer-bottom">
