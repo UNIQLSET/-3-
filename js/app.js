@@ -1156,7 +1156,7 @@ function renderQuestions(subject, details, topicOverride) {
   const label = topic ? `Вопросы к семинару (т. ${topic})` : 'Вопросы к семинару';
   return `<details class="seminar-q"><summary>${label}</summary><ol>${items}</ol>` +
     `<div class="seminar-q-actions">` +
-      `<a class="ask-deepseek" href="https://chat.deepseek.com/" target="_blank" rel="noopener noreferrer">Скопировать и открыть DeepSeek <span aria-hidden="true">↗</span></a>` +
+      `<button class="ask-deepseek" type="button">Скопировать вопросы для DeepSeek <span aria-hidden="true">↗</span></button>` +
       `<span class="ask-deepseek-status" role="status" aria-live="polite"></span>` +
     `</div></details>`;
 }
@@ -1562,7 +1562,7 @@ document.getElementById('schedule')?.addEventListener('click', e => {
 
   copyPromise.then(copied => {
     if (status) status.textContent = copied
-      ? 'Вопросы скопированы. Вставь их в открывшийся чат DeepSeek.'
+      ? 'Вопросы скопированы — открой приложение DeepSeek и вставь их.'
       : 'Не удалось скопировать. Выдели вопросы и скопируй вручную.';
   });
 });
