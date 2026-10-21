@@ -1,5 +1,5 @@
 // Автообновляемый Service Worker — без ручных версий.
-const CACHE = 'schedule-runtime-v2';
+const CACHE = 'schedule-runtime-v3';
 
 self.addEventListener('install', e => {
   e.waitUntil(self.skipWaiting());
