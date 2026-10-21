@@ -1156,7 +1156,7 @@ function renderQuestions(subject, details, topicOverride) {
   const label = topic ? `Вопросы к семинару (т. ${topic})` : 'Вопросы к семинару';
   return `<details class="seminar-q"><summary>${label}</summary><ol>${items}</ol>` +
     `<div class="seminar-q-actions">` +
-      `<button class="ask-deepseek" type="button">Скопировать для DeepSeek <span aria-hidden="true">↗</span></button>` +
+      `<a class="ask-deepseek" href="https://chat.deepseek.com/" target="_blank" rel="noopener noreferrer">Скопировать и открыть DeepSeek <span aria-hidden="true">↗</span></a>` +
       `<span class="ask-deepseek-status" role="status" aria-live="polite"></span>` +
     `</div></details>`;
 }
@@ -1560,35 +1560,9 @@ document.getElementById('schedule')?.addEventListener('click', e => {
     copyPromise = Promise.resolve(copyFallback());
   }
 
-  const canUseMobileShare = typeof navigator.share === 'function' &&
-    window.isSecureContext && matchMedia('(pointer: coarse)').matches;
-  if (canUseMobileShare) {
-    if (status) status.textContent = 'Выбери DeepSeek в меню отправки…';
-    navigator.share({ title: `Семинар — ${subject}`, text: prompt })
-      .then(() => {
-        if (status) status.textContent = 'Текст передан выбранному приложению.';
-      })
-      .catch(error => {
-        copyPromise.then(copied => {
-          if (!status) return;
-          if (error.name === 'AbortError') {
-            status.textContent = copied
-              ? 'Отправка отменена. Вопросы скопированы — вставь их в DeepSeek.'
-              : 'Отправка отменена, скопировать вопросы не удалось.';
-          } else {
-            status.textContent = copied
-              ? 'Меню отправки недоступно. Вопросы скопированы — вставь их в DeepSeek.'
-              : 'Меню отправки и копирование недоступны.';
-          }
-        });
-      });
-    return;
-  }
-
-  window.open('https://chat.deepseek.com/', '_blank', 'noopener,noreferrer');
   copyPromise.then(copied => {
     if (status) status.textContent = copied
-      ? 'Вопросы скопированы — вставь их в DeepSeek.'
+      ? 'Вопросы скопированы. Вставь их в открывшийся чат DeepSeek.'
       : 'Не удалось скопировать. Выдели вопросы и скопируй вручную.';
   });
 });
