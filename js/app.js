@@ -1208,6 +1208,7 @@ function render(skeleton = false) {
 
     root.innerHTML = '';
     const row = DATA.find(x => x[0] === g && x[1] === d && x[2] === w);
+    updateDayGlance(row);
     const p = document.createElement('div');
     p.className = `panel panel-${g}-${d}-${w} active`;
 
@@ -1291,6 +1292,7 @@ function applyActive() {
 }
 function updateWeekInfo() {
   const monthEl = document.getElementById('week-month');
+  const rangeEl = document.getElementById('week-range');
   const relEl   = document.getElementById('week-rel');
   if (!monthEl) return;
 
@@ -1309,6 +1311,11 @@ function updateWeekInfo() {
   monthEl.textContent = sameMonth
     ? MON_NOM[monday.getMonth()] + ' ' + monday.getFullYear()
     : MON_NOM[monday.getMonth()] + ' – ' + MON_NOM[sat.getMonth()].toLowerCase();
+  if (rangeEl) {
+    rangeEl.textContent = sameMonth
+      ? monday.getDate() + '–' + sat.getDate() + ' ' + MON[monday.getMonth()]
+      : monday.getDate() + ' ' + MON[monday.getMonth()] + ' – ' + sat.getDate() + ' ' + MON[sat.getMonth()];
+  }
 
 
   // Текущая неделя / сегодня
@@ -1374,6 +1381,30 @@ function updateDayNumbers() {
   });
 }
 
+function updateDayGlance(row) {
+  const out = document.getElementById('day-glance');
+  if (!out) return;
+
+  const w = +checked('week');
+  const d = checked('day');
+  const dayIndex = DAYS.indexOf(d);
+  const date = new Date(START.getFullYear(), START.getMonth(), START.getDate() + w * 7 + Math.max(0, dayIndex));
+  const weekDay = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()];
+  const lessons = row?.[3] || [];
+  const last = lessons
+    .map(([, num]) => TIMES[num])
+    .filter(Boolean)
+    .sort((a, b) => a[1] - b[1])
+    .at(-1);
+
+  out.textContent = lessons.length
+    ? `${weekDay} · ${lessons.length} ${lessons.length === 1 ? 'пара' : lessons.length < 5 ? 'пары' : 'пар'} · до ${String(Math.floor(last[1] / 60)).padStart(2, '0')}:${String(last[1] % 60).padStart(2, '0')}`
+    : `${weekDay} · занятий нет`;
+
+  const now = new Date();
+  out.classList.toggle('is-today', date.toDateString() === now.toDateString());
+}
+
 function updateActive() {
   $$('.lesson-card.is-now').forEach(x => x.classList.remove('is-now'));
   const panel = $('.panel.active');
@@ -1381,7 +1412,11 @@ function updateActive() {
 
   const n = new Date();
   if (n.getDay() && day(n) === checked('day') && week(n) === +checked('week')) {
-    $$('.lesson-card', panel).forEach(c => { /* ... */ });
+    const nowMinutes = n.getHours() * 60 + n.getMinutes();
+    $$('.lesson-card', panel).forEach(c => {
+      const lesson = TIMES[c.querySelector('.num')?.textContent.trim()];
+      c.classList.toggle('is-now', Boolean(lesson && nowMinutes >= lesson[0] && nowMinutes < lesson[1]));
+    });
   }
   renderStatus();
 }

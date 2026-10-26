@@ -74,7 +74,7 @@ html[data-theme="dark"]{
 *{ box-sizing:border-box; }
 html,body{ margin:0; padding:0; }
 body{
-  background:var(--paper);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--teal-bg) 28%, var(--paper)) 0, var(--paper) 280px);
   color:var(--ink);
   font-family:'IBM Plex Sans', sans-serif;
   min-height:100vh;
@@ -96,10 +96,10 @@ body{
     radial-gradient(90% 70%  at 90% 10%, rgba(224,183,91,.12) 0%, transparent 60%),
     var(--header-bg);
   color:var(--header-fg);
-  padding:20px 20px 14px;
+  padding:16px 20px 10px;
   position:relative;
   overflow:hidden;
-  padding-top: calc(20px + env(safe-area-inset-top));
+  padding-top: calc(16px + env(safe-area-inset-top));
 }
 .header::after{
   content:'';
@@ -129,7 +129,7 @@ body{
   text-align:center;
   font-family:'Fraunces', serif;
   font-weight:600;
-  font-size:clamp(30px, 6.4vw, 46px);
+  font-size:clamp(28px, 5.7vw, 40px);
   line-height:1.05;
   letter-spacing:-0.015em;
   display:flex;
@@ -261,9 +261,9 @@ html[data-theme="dark"] .theme-svg .moon{
 }
 /* ─── Эпиграф в шапке ─── */
 .header-quote{
-  max-width:560px;
-  margin:12px auto 0;
-  padding:0 24px 0 34px;
+  max-width:520px;
+  margin:8px auto 0;
+  padding:0 18px;
   position:relative;
   font-family:'Fraunces', serif;
   color:var(--header-fg);
@@ -273,11 +273,11 @@ html[data-theme="dark"] .theme-svg .moon{
   background:transparent;
 }
 .header-quote p{
-  margin:0 0 8px;
+  margin:0 0 5px;
   font-style:italic;
   font-weight:500;
-  font-size:clamp(14px, 1.65vw, 16.5px);
-  line-height:1.42;
+  font-size:clamp(13px, 1.45vw, 15px);
+  line-height:1.32;
   letter-spacing:.004em;
   color:var(--header-fg);
 }
@@ -304,24 +304,24 @@ html[data-theme="dark"] .theme-svg .moon{
    ═══════════════════════════════════════════════════ */
 .switcher{
   background:var(--header-bg);
-  padding:0 20px 18px;
+  padding:0 20px 14px;
 }
 .switcher-inner{
   max-width:760px;
   margin:0 auto;
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:6px;
 }
 .switcher-row{
   display:flex;
   align-items:center;
   gap:10px;
-  min-height:38px;
+  min-height:34px;
 }
 .switcher-label{
-  flex:0 0 84px;
-  font:500 10.5px 'IBM Plex Mono', monospace;
+  flex:0 0 70px;
+  font:500 9.5px 'IBM Plex Mono', monospace;
   letter-spacing:.09em;
   text-transform:uppercase;
   color:var(--gold);
@@ -329,7 +329,7 @@ html[data-theme="dark"] .theme-svg .moon{
 }
 .switcher-tabs{
   display:flex;
-  gap:6px;
+  gap:5px;
   flex:1 1 auto;
   overflow-x:auto;
   -webkit-overflow-scrolling:touch;
@@ -343,9 +343,9 @@ html[data-theme="dark"] .theme-svg .moon{
   background:transparent;
   color:var(--switch-fg);
   border-radius:999px;
-  min-height:36px;
-  padding:7px 15px;
-  font:600 13px 'IBM Plex Sans', sans-serif;
+  min-height:32px;
+  padding:5px 12px;
+  font:600 12px 'IBM Plex Sans', sans-serif;
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
   transition:background .12s, color .12s, border-color .12s;
@@ -363,7 +363,7 @@ html[data-theme="dark"] .theme-svg .moon{
 .wrap{
   max-width:760px;
   margin:0 auto;
-  padding:18px 16px 50px;
+  padding:14px 16px 42px;
 }
 .sticky-bar{
   position:sticky;
@@ -371,8 +371,8 @@ html[data-theme="dark"] .theme-svg .moon{
   z-index:20;
   background:var(--paper);
   margin:0 -16px;
-  padding:6px 16px 0;
-  box-shadow:0 6px 12px -8px rgba(0,0,0,.12);
+  padding:8px 16px 2px;
+  box-shadow:0 8px 18px -14px rgba(0,0,0,.28);
 }
 html[data-theme="dark"] .sticky-bar{
   box-shadow:0 6px 12px -8px rgba(0,0,0,.5);
@@ -383,7 +383,7 @@ html[data-theme="dark"] .sticky-bar{
    ═══════════════════════════════════════════════════ */
 .day-tabs{
   display:flex;
-  gap:6px;
+  gap:4px;
   overflow-x:auto;
   padding-bottom:4px;
   margin-bottom:16px;
@@ -398,11 +398,11 @@ html[data-theme="dark"] .sticky-bar{
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:3px;
-  padding:8px 14px 9px;
+  gap:4px;
+  padding:7px 10px 8px;
   cursor:pointer;
   white-space:nowrap;
-  border-radius:12px;
+  border-radius:10px;
   border:1px solid transparent;
   transition:background .15s, border-color .15s, transform .1s;
   -webkit-tap-highlight-color:transparent;
@@ -437,12 +437,12 @@ html[data-theme="dark"] .sticky-bar{
 }
 .day-tab.active{
   background:linear-gradient(180deg,
-    color-mix(in srgb, var(--gold) 18%, transparent) 0%,
-    color-mix(in srgb, var(--gold) 6%, transparent) 100%);
-  border-color:color-mix(in srgb, var(--gold) 45%, transparent);
+    color-mix(in srgb, var(--teal) 19%, transparent) 0%,
+    color-mix(in srgb, var(--teal) 6%, transparent) 100%);
+  border-color:color-mix(in srgb, var(--teal) 42%, transparent);
   box-shadow:
     0 1px 0 rgba(255,255,255,.04) inset,
-    0 4px 14px -6px color-mix(in srgb, var(--gold) 55%, transparent);
+    0 4px 14px -7px color-mix(in srgb, var(--teal) 55%, transparent);
 }
 .day-tab.active .day-name,
 .day-tab.active .day-num:not(.is-today){
@@ -452,8 +452,8 @@ html[data-theme="dark"] .sticky-bar{
 
 html[data-theme="dark"] .day-tab.active{
   background:linear-gradient(180deg,
-    color-mix(in srgb, var(--gold) 22%, transparent) 0%,
-    color-mix(in srgb, var(--gold) 8%, transparent) 100%);
+    color-mix(in srgb, var(--teal) 22%, transparent) 0%,
+    color-mix(in srgb, var(--teal) 8%, transparent) 100%);
 }
 html[data-theme="dark"] .day-tab.active .day-name,
 html[data-theme="dark"] .day-tab.active .day-num{
@@ -466,19 +466,21 @@ html[data-theme="dark"] .day-tab.active .day-num{
    ═══════════════════════════════════════════════════ */
 .week-head{
   display:flex;
-  align-items:baseline;
+  align-items:center;
   gap:10px;
-  margin:0 2px 8px;
+  margin:0 2px 10px;
   flex-wrap:wrap;
 }
+.week-title{ min-width:0; }
 .week-head .week-month{
   font-family:'Fraunces', serif;
   font-weight:600;
-  font-size:16px;
+  font-size:17px;
   color:var(--ink);
   line-height:1.2;
 }
 .week-head .week-range{
+  margin-top:2px;
   font-family:'IBM Plex Mono', monospace;
   font-size:11px;
   color:var(--muted);
@@ -521,9 +523,9 @@ body.is-current-week .week-head .week-month{ color:var(--teal); }
 .day-nav{
   display:flex;
   align-items:stretch;
-  gap:4px;
+  gap:6px;
   border-bottom:1px solid var(--line);
-  margin-bottom:16px;
+  margin-bottom:14px;
 }
 .day-arrow{
   flex:0 0 auto;
@@ -591,18 +593,18 @@ body.is-current-week .week-head .week-month{ color:var(--teal); }
 .lessons{
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:8px;
 }
 
 .lesson-card{
   display:grid;
-  grid-template-columns:64px 1fr;
-  gap:14px;
+  grid-template-columns:70px 1fr;
+  gap:12px;
   background:var(--paper-card);
   border:1px solid var(--line);
-  border-left:4px solid var(--muted);
-  border-radius:12px;
-  padding:14px 15px;
+  border-left:3px solid var(--muted);
+  border-radius:14px;
+  padding:13px 14px 14px;
   box-shadow:
     0 1px 2px rgba(0,0,0,.04),
     0 8px 20px -14px rgba(0,0,0,.20);
@@ -621,7 +623,7 @@ body.is-current-week .week-head .week-month{ color:var(--teal); }
     transparent 30%);
 }
 .lesson-card:hover{
-  transform:translateY(-2px);
+  transform:translateY(-1px);
   box-shadow:
     0 1px 2px rgba(0,0,0,.05),
     0 14px 30px -16px rgba(0,0,0,.28);
@@ -684,38 +686,38 @@ body.is-current-week .week-head .week-month{ color:var(--teal); }
 /* Время */
 .lesson-time{
   font-family:'IBM Plex Mono', monospace;
-  font-size:12.5px;
-  color:var(--ink-soft);
-  line-height:1.3;
-  padding-top:2px;
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.42;
+  padding-top:3px;
 }
 .lesson-time .num{
   display:inline-block;
   white-space:nowrap;
   font-size:10px;
   font-weight:600;
-  color:var(--muted);
+  color:var(--ink-soft);
   letter-spacing:.06em;
-  margin-bottom:6px;
-  padding:2px 7px;
-  border-radius:100px;
-  background:var(--paper);
-  border:1px solid var(--line);
+  margin-bottom:5px;
+  padding:0;
+  border-radius:0;
+  background:transparent;
+  border:0;
 }
 
 /* Тело */
 .lesson-body .subject{
   font-family:'Fraunces', serif;
   font-weight:600;
-  font-size:16.5px;
-  margin:0 0 6px;
-  line-height:1.25;
+  font-size:17px;
+  margin:0 0 5px;
+  line-height:1.22;
   color:var(--ink);
 }
 .lesson-body .details{
-  font-size:13.5px;
-  color:var(--ink-soft);
-  line-height:1.5;
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.45;
 }
 
 /* Бейдж типа занятия */
@@ -724,12 +726,12 @@ body.is-current-week .week-head .week-month{ color:var(--teal); }
   align-items:center;
   gap:6px;
   font-family:'IBM Plex Mono', monospace;
-  font-size:10.5px;
+  font-size:9.5px;
   font-weight:600;
   letter-spacing:.04em;
-  padding:3px 10px 3px 8px;
+  padding:2px 8px 2px 7px;
   border-radius:100px;
-  margin-bottom:8px;
+  margin-bottom:6px;
 }
 .badge::before{
   content:'';
@@ -1447,4 +1449,207 @@ html[data-theme="dark"] .foot-note {
     animation-iteration-count:1 !important;
     transition-duration:.01ms !important;
   }
+}
+
+/* ═══════════════════════════════════════════════════
+   15. МИНИМАЛИСТИЧНЫЙ ИНТЕРФЕЙС
+   ═══════════════════════════════════════════════════ */
+body{ background:var(--paper); }
+
+.header{
+  background:var(--header-bg);
+  padding:14px 20px 10px;
+  padding-top:calc(14px + env(safe-area-inset-top));
+}
+.header::after{
+  background:color-mix(in srgb, var(--switch-border) 65%, transparent);
+}
+.header-inner{ max-width:760px; }
+.brand{
+  justify-content:flex-start;
+  text-align:left;
+  gap:9px;
+  font-family:'IBM Plex Sans', sans-serif;
+  font-size:clamp(21px, 4vw, 28px);
+  font-weight:600;
+  letter-spacing:-.035em;
+  text-shadow:none;
+}
+.brand-emblem{
+  color:var(--header-fg);
+  background:none;
+  -webkit-background-clip:initial;
+  background-clip:initial;
+  padding:0;
+  border:0;
+  border-radius:0;
+  font-family:inherit;
+  font-size:inherit;
+  font-weight:inherit;
+  letter-spacing:inherit;
+  line-height:inherit;
+}
+.brand-emblem::after{ display:none; }
+.header-quote{ display:none; }
+
+.theme-toggle{
+  width:36px;
+  height:36px;
+  border-radius:9px;
+  background:transparent;
+  border-color:var(--switch-border);
+  box-shadow:none;
+}
+.theme-toggle::before{ display:none; }
+.theme-toggle:hover{
+  background:color-mix(in srgb, var(--header-fg) 8%, transparent);
+  border-color:var(--header-muted);
+  box-shadow:none;
+}
+.theme-toggle:active{ transform:scale(.96); }
+
+.switcher{
+  padding:8px 20px 12px;
+  border-bottom:1px solid color-mix(in srgb, var(--switch-border) 60%, transparent);
+}
+.switcher-inner{ gap:5px; }
+.switcher-row{ min-height:31px; gap:8px; }
+.switcher-label{
+  flex-basis:62px;
+  color:var(--header-muted);
+  font-size:9px;
+  letter-spacing:.08em;
+}
+.switcher-tabs{ gap:6px; }
+.switcher-tab{
+  min-height:30px;
+  padding:4px 11px;
+  border-radius:7px;
+  background:color-mix(in srgb, var(--header-fg) 4%, transparent);
+  border-color:transparent;
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px;
+}
+.switcher-tab:hover{ border-color:var(--switch-border); }
+.switcher-tab.active{
+  background:var(--teal);
+  border-color:var(--teal);
+  color:#fff;
+  box-shadow:none;
+}
+
+.sticky-bar{
+  box-shadow:none;
+  border-bottom:1px solid var(--line);
+}
+.week-head .week-month{ font-family:'IBM Plex Sans', sans-serif; font-size:16px; letter-spacing:-.02em; }
+.week-meta{ display:flex; align-items:center; gap:7px; margin-top:2px; }
+.week-head .week-range{ margin-top:0; font-size:10px; }
+.day-glance{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  color:var(--muted);
+  font:500 10px/1 'IBM Plex Mono', monospace;
+  white-space:nowrap;
+}
+.day-glance::before{
+  content:'';
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--line);
+}
+.day-glance.is-today::before{
+  background:var(--teal);
+  box-shadow:0 0 0 0 color-mix(in srgb, var(--teal) 45%, transparent);
+  animation:glance-pulse 2.4s ease-out infinite;
+}
+@keyframes glance-pulse{
+  60%{ box-shadow:0 0 0 5px transparent; }
+  100%{ box-shadow:0 0 0 0 transparent; }
+}
+.week-head .week-rel{ color:var(--teal); }
+.today-button{
+  border-color:transparent;
+  border-radius:7px;
+  background:var(--teal-bg);
+  color:var(--teal);
+  padding:6px 9px;
+}
+.today-button:hover{ background:color-mix(in srgb, var(--teal) 18%, var(--teal-bg)); }
+.day-nav{ border-bottom:0; }
+.day-arrow{
+  width:34px;
+  height:34px;
+  border-radius:8px;
+  box-shadow:none;
+  background:transparent;
+}
+.day-arrow:hover{ background:var(--paper-card); border-color:var(--line); }
+.day-tab{ border-radius:8px; }
+.day-tab.active{
+  background:var(--teal);
+  border-color:var(--teal);
+  box-shadow:none;
+}
+.day-tab.active .day-name,
+.day-tab.active .day-num:not(.is-today),
+html[data-theme="dark"] .day-tab.active .day-name,
+html[data-theme="dark"] .day-tab.active .day-num{ color:#fff; }
+.day-tab .day-num.is-today{
+  background:var(--teal-bg);
+  color:var(--teal);
+  box-shadow:none;
+}
+.day-tab.active .day-num.is-today{ background:rgba(255,255,255,.16); color:#fff; }
+
+.lesson-card{
+  border-left-width:1px;
+  border-radius:12px;
+  box-shadow:none;
+}
+.lesson-card::before{ display:none; }
+.lesson-card:hover{
+  transform:translateY(-1px);
+  border-color:color-mix(in srgb, var(--teal) 40%, var(--line));
+  box-shadow:none;
+}
+.lesson-card.type-Лекция,
+.lesson-card.type-Практика,
+.lesson-card.type-Семинар{ box-shadow:none; }
+.lesson-card.type-Лекция,
+.lesson-card.type-Практика,
+.lesson-card.type-Семинар{ border-left-color:var(--line); }
+.lesson-body .subject{ font-family:'IBM Plex Sans', sans-serif; font-size:16px; line-height:1.3; }
+.badge{ border-radius:5px; letter-spacing:.02em; }
+.badge::before{ width:5px; height:5px; box-shadow:none; }
+.lesson-card.is-now{
+  transform:none;
+  border-color:var(--teal);
+  border-left-color:var(--teal);
+  background:var(--paper-card);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--teal) 28%, transparent);
+}
+.lesson-card.is-now::before{
+  display:block;
+  top:10px;
+  right:10px;
+  padding:0;
+  border-radius:0;
+  background:transparent;
+  color:var(--teal);
+  font-size:8.5px;
+}
+.status-bar{ border-radius:12px; box-shadow:none; }
+
+@media (max-width:520px){
+  .header{ padding:12px 16px 8px; padding-top:calc(12px + env(safe-area-inset-top)); }
+  .brand{ font-size:21px; }
+  .switcher{ padding:7px 16px 10px; }
+  .switcher-label{ flex-basis:60px; }
+  .switcher-tab{ min-height:29px; padding:4px 10px; }
+  .day-tab{ padding:7px 4px; }
+  .week-meta{ gap:5px; }
+  .day-glance{ font-size:9px; }
 }
