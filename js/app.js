@@ -1045,6 +1045,23 @@
   return [subject, details];
 }
 
+function splitLocation(subject, details) {
+  const locations = [];
+  const pattern = /(?:ауд\.?\s*(?:№\s*)?|л\/з\s*(?:№\s*)?)\d+(?:\s*[-–]\s*\d+)*(?:\s*[,/]\s*(?:(?:ауд\.?\s*)?(?:№\s*)?)\d+(?:\s*[-–]\s*\d+)*)*(?:\s+МАШ)?|спортгородок|спортзал|спортивный\s+зал/gi;
+  for (const text of [subject, details]) {
+    for (const match of text.matchAll(pattern)) locations.push(match[0].trim());
+  }
+  // При нескольких местах сохраняем исходные привязки к преподавателям.
+  if (locations.length === 1) {
+    const clean = text => text.replace(pattern, '').split(/<br\s*\/?>/i)
+      .map(line => line.trim().replace(/^[,;]\s*|\s*[,;]$/g, ''))
+      .filter(Boolean).join('<br/>');
+    subject = clean(subject);
+    details = clean(details);
+  }
+  return { subject, details, locations: [...new Set(locations)] };
+}
+
 function parseSubjectForQuestions(subject, details) {
   let name = subject, topic = null;
   const RX = /т\.\s*([\d.,\-\/\s]*\d)/i;
@@ -1172,31 +1189,7 @@ function subjectHue(s) {
   return h;
 }
   // ─── РЕНДЕР РАСПИСАНИЯ ─────────────────────────────────────────
-let renderToken = 0;
-
-function buildSkeleton() {
-  let html = '<div class="panel active"><div class="lessons">';
-  for (let i = 0; i < 4; i++) {
-    html +=
-      '<div class="lesson-card skeleton">' +
-        '<div class="lesson-time">' +
-          '<span class="skel-num"></span>' +
-          '<span class="skel-time"></span>' +
-        '</div>' +
-        '<div class="lesson-body">' +
-          '<span class="skel-badge"></span>' +
-          '<span class="skel-title"></span>' +
-          '<span class="skel-line"></span>' +
-          '<span class="skel-line short"></span>' +
-        '</div>' +
-      '</div>';
-  }
-  html += '</div></div>';
-  return html;
-}
-
-function render(skeleton = false) {
-  const token = ++renderToken;
+function render() {
 
   const g = state.group;
   const d = checked('day');
@@ -1204,7 +1197,6 @@ function render(skeleton = false) {
   const root = $('#schedule');
 
   const build = () => {
-    if (token !== renderToken) return; // устаревший рендер — игнорируем
 
     root.innerHTML = '';
     const row = DATA.find(x => x[0] === g && x[1] === d && x[2] === w);
@@ -1251,12 +1243,14 @@ function render(skeleton = false) {
           questionsHtml = renderQuestions(parts[0], parts[1], effTopic);
         }
 
+        const content = splitLocation(parts[0], parts[1]);
         c.innerHTML =
           `<div class="lesson-time"><span class="num">${num}</span>${time}</div>` +
           `<div class="lesson-body">` +
           `${effType ? `<span class="badge type-${effType}">${effType}</span><br>` : ''}` +
-          `<p class="subject">${parts[0]}</p>` +
-          `<div class="details">${parts[1]}</div>` +
+          `<p class="subject">${content.subject}</p>` +
+          `${content.locations.length ? `<div class="lesson-location">${content.locations.map(escapeHtml).join(' · ')}</div>` : ''}` +
+          `${content.details ? `<div class="details">${content.details}</div>` : ''}` +
           `${questionsHtml}` +
           `</div>`;
         l.append(c);
@@ -1268,18 +1262,7 @@ function render(skeleton = false) {
     updateActive();
   };
 
-  if (skeleton) {
-    root.innerHTML = buildSkeleton();
-    // сразу обновляем только табы / week-info, панель пока фейковая
-    $$('.day-tab.active').forEach(x => x.classList.remove('active'));
-    $(`label[for="day-${d}"]`)?.classList.add('active');
-    const todayWeek = week(new Date());
-    document.body.classList.toggle('is-current-week', w === todayWeek);
-    updateWeekInfo();
-    setTimeout(build, 220);
-  } else {
-    build();
-  }
+  build();
 }
 function applyActive() {
   $$('.panel.active,.day-tab.active').forEach(x => x.classList.remove('active'));
@@ -1344,7 +1327,7 @@ document.getElementById('week-prev')?.addEventListener('click', () => {
   set('day-mon');
 
   updateDayNumbers();
-  render(true);
+  render();
 });
 
 document.getElementById('week-next')?.addEventListener('click', () => {
@@ -1357,7 +1340,7 @@ document.getElementById('week-next')?.addEventListener('click', () => {
   set('day-mon');
 
   updateDayNumbers();
-  render(true);
+  render();
 });
 
 document.getElementById('today-jump')?.addEventListener('click', () => {
@@ -1365,7 +1348,7 @@ document.getElementById('today-jump')?.addEventListener('click', () => {
   set('week-' + week(now));
   set('day-' + day(now));
   updateDayNumbers();
-  render(true);
+  render();
 });
 function updateDayNumbers() {
   const w = +checked('week');
@@ -1542,14 +1525,14 @@ function renderStatus() {
 // Смена дня
 $$('input[name="day"]').forEach(r => r.onchange = () => {
   updateDayNumbers();
-  render(true);          // ← добавили true
+  render();
 });
 
 // Смена недели
 $$('input[name="week"]').forEach(r => r.onchange = () => {
   set('day-mon');
   updateDayNumbers();
-  render(true);          // ← добавили true
+  render();
 });
 
 document.getElementById('schedule')?.addEventListener('click', e => {
