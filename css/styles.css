@@ -802,6 +802,11 @@ body.is-current-week .week-head .week-month{ color:var(--teal); }
   transition:transform .15s;
 }
 .seminar-q[open] summary::before{ transform:rotate(90deg); }
+.seminar-q-note{
+  margin:8px 0;
+  font-size:0.85rem;
+  line-height:1.45;
+}
 .seminar-q-actions{
   display:flex;
   align-items:center;
