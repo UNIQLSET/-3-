@@ -1170,6 +1170,9 @@ function verifiedLesson(name, type, topic, group, day, week, pair) {
   const lessons = VERIFIED_LESSONS[name];
   if (!lessons) return undefined;
 
+  // Новые материалы по налоговому праву начинаются с темы 5.
+  if (name === 'Налоговое право' && (topic === '1-3' || topic === '4')) return undefined;
+
   const key = `${type}|${(topic || '').replace(/,/g, '-')}`;
   return lessons[`${key}|${group}|${day}|${week}|${pair}`] ?? lessons[key] ?? null;
 }
@@ -1185,8 +1188,9 @@ function renderQuestionList(name, topic, list, verified, type = 'Семинар'
     </li>`).join('');
   const title = type === 'Практика' ? 'Подготовка к практическому занятию' : 'Вопросы к семинару';
   const label = topic ? `${title} (т. ${escapeHtml(topic)})` : title;
+  const source = verified?.pages ? `учебная программа, с. ${escapeHtml(verified.pages)}` : 'учебно-методическая карта';
   const control = verified
-    ? `<p class="seminar-q-note"><strong>Форма контроля:</strong> ${escapeHtml(verified.control || 'в этой строке программы не указана')} <span>(учебная программа, с. ${escapeHtml(verified.pages)})</span></p>`
+    ? `<p class="seminar-q-note"><strong>Форма контроля:</strong> ${escapeHtml(verified.control || 'в этой строке программы не указана')} <span>(${source})</span></p>`
     : '';
   return `<details class="seminar-q"><summary>${label}</summary>${control}<ol>${items}</ol>` +
     `<div class="seminar-q-actions">` +
