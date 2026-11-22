@@ -551,8 +551,10 @@ function render() {
         c.innerHTML =
           `<div class="lesson-time"><span class="num">${num}</span>${time}</div>` +
           `<div class="lesson-body">` +
-          `${effType ? `<span class="badge type-${effType}">${effType}</span><br>` : ''}` +
+          `<div class="lesson-heading">` +
           `<p class="subject">${content.subject}</p>` +
+          `${effType ? `<span class="badge type-${effType}">${effType}</span>` : ''}` +
+          `</div>` +
           `${content.locations.length ? `<div class="lesson-location">${content.locations.map(escapeHtml).join(' · ')}</div>` : ''}` +
           `${content.details ? `<div class="details">${content.details}</div>` : ''}` +
           `${questionsHtml}` +
@@ -658,9 +660,16 @@ function updateDayNumbers() {
     const x = new Date(m.getFullYear(), m.getMonth(), m.getDate() + i);
     if (e) {
       e.textContent = x.getDate();
-      e.classList.toggle('is-today', x.toDateString() === today);
+      if (x.toDateString() === today) e.setAttribute('aria-current', 'date');
+      else e.removeAttribute('aria-current');
     }
   });
+  const sundayLabel = $('#schedule-sunday');
+  if (sundayLabel) {
+    const sunday = new Date(m.getFullYear(), m.getMonth(), m.getDate() + 6);
+    sundayLabel.hidden = sunday.toDateString() !== today;
+    sundayLabel.textContent = `Вс, ${sunday.getDate()}`;
+  }
 }
 
 function updateActive() {
