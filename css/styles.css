@@ -1215,6 +1215,12 @@ html:not([data-theme="dark"]) .theme-svg .moon{ display:none; }
   outline:2px solid var(--teal);
   outline-offset:2px;
 }
+#app-info .app-info-close{
+  border:0;
+  outline:0;
+  background:transparent;
+  -webkit-tap-highlight-color:transparent;
+}
 
 .share-dialog label{
   display:block;
