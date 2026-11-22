@@ -15,6 +15,7 @@ const errors = {
   invalid_session: 'Сеанс завершён. Войдите снова.',
   admin_required: 'Войдите в кабинет снова.',
   leader_required: 'Аналитика доступна старосте группы.',
+  invalid_period: 'Укажи дату начала и дату окончания периода.',
   invalid_mark: 'Выберите пары и статус.',
   unscheduled_pair: 'На эту дату по расписанию нет выбранных пар.',
   reason_too_long: 'Причина должна быть не длиннее 500 знаков.',
@@ -29,7 +30,7 @@ function element(tag, className, text) {
 }
 
 const nameOrder = new Intl.Collator('ru', { sensitivity: 'base' });
-const monthFormat = new Intl.DateTimeFormat('ru', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const periodFormat = new Intl.DateTimeFormat('ru', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
 
 function setupAnalytics(call) {
   const disclosure = document.getElementById('attendance-analytics');
@@ -37,9 +38,13 @@ function setupAnalytics(call) {
 
   const message = document.getElementById('attendance-analytics-message');
   const table = document.getElementById('attendance-analytics-table');
-  const month = document.getElementById('attendance-analytics-month');
+  const caption = document.getElementById('attendance-analytics-period');
+  const filter = document.getElementById('attendance-analytics-filter');
+  const fromInput = document.getElementById('attendance-analytics-from');
+  const toInput = document.getElementById('attendance-analytics-to');
   const body = table.tBodies[0];
   let date;
+  let period;
   let request = 0;
 
   async function load() {
@@ -49,12 +54,24 @@ function setupAnalytics(call) {
     message.textContent = '';
     if (disclosure.hidden || !disclosure.open || !date) return;
 
+    if (!period) {
+      const from = `${date.slice(0, 7)}-01`;
+      const lastDay = new Date(`${from}T00:00:00Z`);
+      lastDay.setUTCMonth(lastDay.getUTCMonth() + 1, 0);
+      const to = lastDay.toISOString().slice(0, 10);
+      period = { from, to };
+      fromInput.value = from;
+      toInput.value = to;
+    }
+    const { from, to } = period;
     message.textContent = 'Загружаем сводку…';
     try {
-      const { students } = await call('attendance_unexcused_summary', { date });
+      const { students } = await call('attendance_unexcused_summary', { from, to });
       if (revision !== request) return;
       students.sort((a, b) => b.pairs - a.pairs || nameOrder.compare(a.name, b.name));
-      month.textContent = monthFormat.format(new Date(`${date}T00:00:00Z`));
+      const start = periodFormat.format(new Date(`${from}T00:00:00Z`));
+      const end = periodFormat.format(new Date(`${to}T00:00:00Z`));
+      caption.textContent = from === to ? start : `${start} — ${end}`;
       body.replaceChildren(...students.map(student => {
         const row = element('tr');
         row.classList.toggle('attendance-analytics-zero', student.pairs === 0);
@@ -66,19 +83,33 @@ function setupAnalytics(call) {
       message.textContent = students.length ? '' : 'В списке группы пока нет студентов.';
       table.hidden = !students.length;
     } catch (error) {
-      if (revision === request) message.textContent = errors[error.message] || 'Не удалось загрузить сводку. Сверните её и откройте снова.';
+      if (revision === request) message.textContent = errors[error.message] || 'Не удалось загрузить сводку. Нажми «Показать», чтобы повторить.';
     }
   }
 
   disclosure.addEventListener('toggle', load);
+  filter.addEventListener('submit', event => {
+    event.preventDefault();
+    const from = fromInput.value;
+    const to = toInput.value;
+    if (!from || !to || from > to) {
+      ++request;
+      message.textContent = 'Дата окончания должна быть не раньше даты начала.';
+      return;
+    }
+    period = { from, to };
+    load();
+  });
   return {
     update(value, leader, refresh) {
-      const monthChanged = value?.slice(0, 7) !== date?.slice(0, 7);
       const wasVisible = !disclosure.hidden;
       date = value;
       disclosure.hidden = !leader;
-      if (!leader) disclosure.open = false;
-      if (wasVisible !== leader || monthChanged || refresh) load();
+      if (!leader) {
+        disclosure.open = false;
+        period = undefined;
+      }
+      if (wasVisible !== leader || refresh) load();
     }
   };
 }

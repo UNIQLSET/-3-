@@ -90,7 +90,7 @@ function show(profile, text = '') {
   } else {
     message.textContent = text;
   }
-  if (adminPage || location.hash === '#attendance') marks?.showFor(profile);
+  if (adminPage || !profile || location.hash === '#attendance') marks?.showFor(profile);
   registrations?.showFor(profile);
 }
 
@@ -260,6 +260,7 @@ claimForm?.addEventListener('submit', claimGroup);
 leaderForm?.addEventListener('submit', assignLeader);
 logout.addEventListener('click', signOut);
 if (!adminPage) window.addEventListener('hashchange', () => {
+  profileMenu.open = false;
   if (location.hash !== '#attendance') return;
   if (currentProfile) marks?.showFor(currentProfile);
   else loadSession();

@@ -58,28 +58,44 @@
 
 <div class="header">
   <div class="header-inner">
-        <h1 class="brand">
+    <h1 class="brand">
       <span class="brand-word">Академия</span>
       <span class="brand-emblem">МВД</span>
     </h1>
-       <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Сменить тему">
-      <svg class="theme-svg" viewBox="0 0 24 24" aria-hidden="true">
-        <g class="sun">
-          <circle cx="12" cy="12" r="4.2"/>
-          <line x1="12" y1="2.4"  x2="12" y2="5"/>
-          <line x1="12" y1="19"   x2="12" y2="21.6"/>
-          <line x1="2.4" y1="12"  x2="5"  y2="12"/>
-          <line x1="19" y1="12"   x2="21.6" y2="12"/>
-          <line x1="5.2" y1="5.2" x2="7.1" y2="7.1"/>
-          <line x1="16.9" y1="16.9" x2="18.8" y2="18.8"/>
-          <line x1="5.2" y1="18.8" x2="7.1" y2="16.9"/>
-          <line x1="16.9" y1="7.1" x2="18.8" y2="5.2"/>
-        </g>
-        <g class="moon">
-          <path d="M20.6 13.1A8.6 8.6 0 1 1 10.9 3.4a6.7 6.7 0 0 0 9.7 9.7Z"/>
-        </g>
-      </svg>
-    </button>
+    <div class="header-actions">
+      <details id="attendance-profile" class="attendance-profile" hidden>
+        <summary class="attendance-profile-trigger" aria-label="Профиль" title="Профиль">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="8" r="3"/>
+            <path d="M5 20v-1a7 7 0 0 1 14 0v1"/>
+          </svg>
+        </summary>
+        <div class="attendance-auth attendance-profile-panel">
+          <p id="attendance-profile-name"></p>
+          <p id="attendance-profile-role"></p>
+          <p id="attendance-profile-message" role="status"></p>
+          <button id="attendance-logout" type="button" hidden>Выйти</button>
+        </div>
+      </details>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Сменить тему">
+        <svg class="theme-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <g class="sun">
+            <circle cx="12" cy="12" r="4.2"/>
+            <line x1="12" y1="2.4"  x2="12" y2="5"/>
+            <line x1="12" y1="19"   x2="12" y2="21.6"/>
+            <line x1="2.4" y1="12"  x2="5"  y2="12"/>
+            <line x1="19" y1="12"   x2="21.6" y2="12"/>
+            <line x1="5.2" y1="5.2" x2="7.1" y2="7.1"/>
+            <line x1="16.9" y1="16.9" x2="18.8" y2="18.8"/>
+            <line x1="5.2" y1="18.8" x2="7.1" y2="16.9"/>
+            <line x1="16.9" y1="7.1" x2="18.8" y2="5.2"/>
+          </g>
+          <g class="moon">
+            <path d="M20.6 13.1A8.6 8.6 0 1 1 10.9 3.4a6.7 6.7 0 0 0 9.7 9.7Z"/>
+          </g>
+        </svg>
+      </button>
+    </div>
 </div>
 <blockquote class="header-quote">
     <p>Ничто так не освобождает человека, как знание.</p>
@@ -193,15 +209,6 @@
 
 <main id="attendance-page" aria-label="Посещаемость" hidden>
   <div class="wrap">
-    <details id="attendance-profile" class="attendance-profile" hidden>
-      <summary class="attendance-disclosure">Профиль</summary>
-      <div class="attendance-auth attendance-profile-panel">
-        <p id="attendance-profile-name"></p>
-        <p id="attendance-profile-role"></p>
-        <p id="attendance-profile-message" role="status"></p>
-        <button id="attendance-logout" type="button" hidden>Выйти</button>
-      </div>
-    </details>
     <section id="attendance-account" class="attendance-auth" aria-label="Вход в посещаемость">
       <p id="attendance-message" aria-live="polite"></p>
       <p id="attendance-registration-note" class="attendance-registration-note">Система пока работает только для группы <strong>4501</strong>.</p>
@@ -256,9 +263,14 @@
       </section>
       <details id="attendance-analytics" class="attendance-mark-card attendance-analytics" hidden>
         <summary class="attendance-disclosure">Пропуски без уважительной причины</summary>
+        <form id="attendance-analytics-filter" class="attendance-analytics-filter" aria-label="Период аналитики">
+          <label for="attendance-analytics-from">С <input id="attendance-analytics-from" type="date" required></label>
+          <label for="attendance-analytics-to">По <input id="attendance-analytics-to" type="date" required></label>
+          <button type="submit">Показать</button>
+        </form>
         <p id="attendance-analytics-message" class="attendance-mark-message" role="status"></p>
         <table id="attendance-analytics-table" hidden>
-          <caption id="attendance-analytics-month"></caption>
+          <caption id="attendance-analytics-period"></caption>
           <thead><tr><th scope="col">Студент</th><th scope="col">Пар</th><th scope="col">Дней</th></tr></thead>
           <tbody></tbody>
         </table>
