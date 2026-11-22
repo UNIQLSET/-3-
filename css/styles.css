@@ -2008,16 +2008,12 @@ details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotat
   font:600 13px 'IBM Plex Mono', monospace;
 }
 .attendance-absences > ul:not(:empty){
-  display:grid;
-  gap:8px;
-  margin-top:14px;
+  margin-top:6px;
 }
 .attendance-absences .attendance-person{
-  padding:12px;
-  border:1px solid var(--line);
-  border-radius:12px;
-  background:var(--paper);
+  padding:8px 0;
 }
+.attendance-absences .attendance-person:last-child{ padding-bottom:0; }
 .attendance-person{
   padding:12px 0;
   border-top:1px solid var(--line);
@@ -2046,19 +2042,24 @@ details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotat
 .attendance-mark-badge[data-color="blue"]{ background:var(--attendance-blue-bg); color:var(--attendance-blue); }
 .attendance-mark-caption{ color:var(--ink-soft); font-size:14px; }
 .attendance-absences .attendance-person-mark{
-  grid-template-columns:35px minmax(0, 1fr) auto;
+  display:flex;
+  flex-wrap:wrap;
+  gap:3px 7px;
+  margin-top:4px;
 }
+.attendance-absences .attendance-mark-badge{ text-decoration:none; }
 .attendance-mark-pairs{
-  justify-self:end;
-  padding:3px 7px;
-  border-radius:6px;
-  background:var(--paper-card);
   color:var(--ink);
   font-size:13px;
   font-weight:600;
-  text-align:right;
+  white-space:nowrap;
 }
-.attendance-absences .attendance-private-reason{ grid-column:2 / -1; }
+.attendance-absences .attendance-mark-caption{ font-size:13px; }
+.attendance-absences .attendance-private-reason{
+  min-width:0;
+  max-width:100%;
+  quotes:"«" "»" "„" "“";
+}
 .attendance-private-reason{
   grid-column:2;
   margin:0;
@@ -2068,11 +2069,6 @@ details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotat
   white-space:pre-wrap;
   overflow-wrap:anywhere;
 }
-@media (max-width:420px){
-  .attendance-absences .attendance-person-mark{ grid-template-columns:35px minmax(0, 1fr); }
-  .attendance-mark-pairs{ grid-column:2; justify-self:start; text-align:left; }
-}
-
 .attendance-calendar{
   position:fixed;
   inset:0;

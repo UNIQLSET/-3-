@@ -30,6 +30,8 @@ function element(tag, className, text) {
 }
 
 const nameOrder = new Intl.Collator('ru', { sensitivity: 'base' });
+const pairCountRule = new Intl.PluralRules('ru');
+const pairCountWords = { one: 'пара', few: 'пары', many: 'пар', other: 'пар' };
 const periodFormat = new Intl.DateTimeFormat('ru', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
 
 function setupAnalytics(call) {
@@ -164,17 +166,21 @@ function makeList(day, marks, absencesOnly) {
     for (const entry of personEntries) {
       const status = statuses.get(entry.status);
       const details = element('li', 'attendance-person-mark');
-      const badge = element('span', 'attendance-mark-badge', entry.status);
+      const badge = element(absencesOnly ? 'abbr' : 'span', 'attendance-mark-badge', entry.status);
       badge.dataset.color = status.color;
-      const scope = entry.pairs.length === 1 ? `${entry.pairs[0]}-я пара` :
-        entry.pairs.length === day.pairs.length ? 'Все пары' : `Пары ${entry.pairs.join(', ')}`;
+      const count = entry.pairs.length;
+      const allPairs = count === day.pairs.length;
       if (absencesOnly) {
-        details.append(badge, element('span', 'attendance-mark-caption', status.label),
-          element('span', 'attendance-mark-pairs', scope));
+        badge.title = status.label;
+        details.append(badge, element('span', 'attendance-mark-pairs', `${count} ${pairCountWords[pairCountRule.select(count)]}`));
+        if (!allPairs) details.append(element('span', 'attendance-mark-caption', `№ ${entry.pairs.join(', ')}`));
+        if (entry.reason) details.append(element('q', 'attendance-private-reason', entry.reason));
       } else {
+        const scope = count === 1 ? `${entry.pairs[0]}-я пара` :
+          allPairs ? 'Все пары' : `Пары ${entry.pairs.join(', ')}`;
         details.append(badge, element('span', 'attendance-mark-caption', `${status.label} · ${scope}`));
+        if (entry.reason) details.append(element('p', 'attendance-private-reason', `Причина · ${entry.reason}`));
       }
-      if (entry.reason) details.append(element('p', 'attendance-private-reason', `Причина · ${entry.reason}`));
       entries.append(details);
     }
     row.append(entries);
