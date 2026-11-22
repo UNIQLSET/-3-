@@ -232,6 +232,7 @@ export function setupAttendanceMarks(call) {
     groupMarks.hidden = true;
     groupMarks.removeAttribute('aria-busy');
     list.replaceChildren();
+    if (personalMark) personalMark.hidden = true;
     if (form) {
       form.hidden = true;
       form.removeAttribute('aria-busy');
@@ -256,6 +257,7 @@ export function setupAttendanceMarks(call) {
     updateEditorControls();
     updateClear();
     form.hidden = false;
+    if (personalMark) personalMark.hidden = false;
   }
 
   async function loadDate(feedback = '', selectedScope = 'all') {
@@ -282,6 +284,7 @@ export function setupAttendanceMarks(call) {
       groupMarks.hidden = true;
       list.replaceChildren();
       if (!data.pairs.length) {
+        if (personalMark) personalMark.hidden = true;
         if (form) form.hidden = true;
         message.textContent = 'На эту дату занятий по расписанию нет.';
         return;
@@ -304,6 +307,7 @@ export function setupAttendanceMarks(call) {
     } catch (error) {
       if (request !== revision) return;
       day = null;
+      if (personalMark) personalMark.hidden = true;
       if (form) form.hidden = true;
       groupMarks.hidden = true;
       list.replaceChildren();
@@ -372,7 +376,6 @@ export function setupAttendanceMarks(call) {
         absenceCount.hidden = !isLeader;
         absenceEmpty.hidden = true;
       }
-      if (personalMark) personalMark.hidden = !group;
       activeGroup = group;
       activeRole = role;
       calendar.setGroup(group);
