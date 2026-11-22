@@ -1806,8 +1806,26 @@ html[data-theme="dark"] .attendance-marks{
 }
 details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotate(45deg); }
 .attendance-disclosure:focus-visible{ outline:2px solid var(--teal); outline-offset:3px; }
-.attendance-analytics:not([open]){ padding:8px; }
-.attendance-analytics:not([open]) > summary{ width:100%; }
+.attendance-analytics > summary{ width:100%; }
+#attendance-analytics-message{ min-height:1.4em; margin:8px 0 0; }
+@media (prefers-reduced-motion:no-preference){
+  .attendance-analytics[open] > .attendance-analytics-content,
+  .attendance-analytics table:not([hidden]){
+    animation:attendance-analytics-fade-in 180ms ease-out;
+  }
+  @keyframes attendance-analytics-fade-in{
+    from{ opacity:0; }
+  }
+  @supports (interpolate-size:allow-keywords) and selector(::details-content){
+    .attendance-analytics{ interpolate-size:allow-keywords; }
+    .attendance-analytics::details-content{
+      block-size:0;
+      overflow:clip;
+      transition:block-size 200ms ease, content-visibility 200ms allow-discrete;
+    }
+    .attendance-analytics[open]::details-content{ block-size:auto; }
+  }
+}
 .attendance-analytics-filter{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 145px)) auto;
@@ -1846,7 +1864,6 @@ details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotat
 }
 .attendance-analytics table{
   width:100%;
-  margin-top:12px;
   border-collapse:collapse;
   font-size:14px;
 }

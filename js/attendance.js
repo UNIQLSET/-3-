@@ -1,4 +1,4 @@
-import { setupAttendanceMarks } from './attendance-marks.js';
+import { setupAttendanceMarks } from './attendance-marks.js?v=20261122-analytics';
 import { setupAttendanceRegistrations } from './attendance-registrations.js';
 import { callAttendance as call } from './supabase.js';
 

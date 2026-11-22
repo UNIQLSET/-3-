@@ -16,7 +16,7 @@
 <script src="./js/verified-lessons.js" defer></script>
 <script type="module" src="./js/app.js"></script>
 <script src="./js/pwa.js" defer></script>
-<script type="module" src="./js/attendance.js?v=20261122-date-fields"></script>
+<script type="module" src="./js/attendance.js?v=20261122-analytics"></script>
 
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-74Q3M2K18C"></script>
@@ -46,7 +46,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/styles.css?v=20261122-date-fields">
+<link rel="stylesheet" href="./css/styles.css?v=20261122-analytics">
 </head>
 <body>
 
@@ -263,17 +263,19 @@
       </section>
       <details id="attendance-analytics" class="attendance-mark-card attendance-analytics" hidden>
         <summary class="attendance-disclosure">Аналитика пропусков(ПН)</summary>
-        <form id="attendance-analytics-filter" class="attendance-analytics-filter" aria-label="Период аналитики">
-          <label for="attendance-analytics-from">С <input id="attendance-analytics-from" type="date" required></label>
-          <label for="attendance-analytics-to">По <input id="attendance-analytics-to" type="date" required></label>
-          <button type="submit">Показать</button>
-        </form>
-        <p id="attendance-analytics-message" class="attendance-mark-message" role="status"></p>
-        <table id="attendance-analytics-table" hidden>
-          <caption id="attendance-analytics-period"></caption>
-          <thead><tr><th scope="col">Студент</th><th scope="col">Пар</th><th scope="col">Дней</th></tr></thead>
-          <tbody></tbody>
-        </table>
+        <div class="attendance-analytics-content">
+          <form id="attendance-analytics-filter" class="attendance-analytics-filter" aria-label="Период аналитики">
+            <label for="attendance-analytics-from">С <input id="attendance-analytics-from" type="date" required></label>
+            <label for="attendance-analytics-to">По <input id="attendance-analytics-to" type="date" required></label>
+            <button type="submit">Показать</button>
+          </form>
+          <p id="attendance-analytics-message" class="attendance-mark-message" role="status"></p>
+          <table id="attendance-analytics-table" hidden>
+            <caption id="attendance-analytics-period"></caption>
+            <thead><tr><th scope="col">Студент</th><th scope="col">Пар</th><th scope="col">Дней</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </details>
     </section>
   </div>

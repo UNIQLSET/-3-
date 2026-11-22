@@ -43,31 +43,32 @@ function setupAnalytics(call) {
   const fromInput = document.getElementById('attendance-analytics-from');
   const toInput = document.getElementById('attendance-analytics-to');
   const body = table.tBodies[0];
-  let date;
+  let group = null;
   let period;
   let request = 0;
+  let pending = false;
+  let loadingMessage;
+
+  function stopLoading() {
+    clearTimeout(loadingMessage);
+    pending = false;
+    table.removeAttribute('aria-busy');
+    message.textContent = '';
+  }
 
   async function load() {
     const revision = ++request;
-    table.hidden = true;
-    body.replaceChildren();
-    message.textContent = '';
-    if (disclosure.hidden || !disclosure.open || !date) return;
-
-    if (!period) {
-      const from = `${date.slice(0, 7)}-01`;
-      const lastDay = new Date(`${from}T00:00:00Z`);
-      lastDay.setUTCMonth(lastDay.getUTCMonth() + 1, 0);
-      const to = lastDay.toISOString().slice(0, 10);
-      period = { from, to };
-      fromInput.value = from;
-      toInput.value = to;
-    }
     const { from, to } = period;
-    message.textContent = 'Загружаем сводку…';
+    stopLoading();
+    pending = true;
+    table.setAttribute('aria-busy', 'true');
+    loadingMessage = setTimeout(() => {
+      message.textContent = 'Загружаем сводку…';
+    }, 300);
     try {
       const { students } = await call('attendance_unexcused_summary', { from, to });
       if (revision !== request) return;
+      stopLoading();
       students.sort((a, b) => b.pairs - a.pairs || nameOrder.compare(a.name, b.name));
       const start = periodFormat.format(new Date(`${from}T00:00:00Z`));
       const end = periodFormat.format(new Date(`${to}T00:00:00Z`));
@@ -83,33 +84,58 @@ function setupAnalytics(call) {
       message.textContent = students.length ? '' : 'В списке группы пока нет студентов.';
       table.hidden = !students.length;
     } catch (error) {
-      if (revision === request) message.textContent = errors[error.message] || 'Не удалось загрузить сводку. Нажми «Показать», чтобы повторить.';
+      if (revision !== request) return;
+      stopLoading();
+      if (error.message === 'leader_required' || error.message === 'invalid_session') {
+        setGroup(null, null);
+        return;
+      }
+      message.textContent = errors[error.message] || 'Не удалось загрузить сводку. Нажми «Показать», чтобы повторить.';
     }
   }
 
-  disclosure.addEventListener('toggle', load);
+  function setGroup(value, leaderGroup) {
+    if (group === leaderGroup) return;
+    group = leaderGroup;
+    ++request;
+    stopLoading();
+    disclosure.hidden = !group;
+    disclosure.open = false;
+    table.hidden = true;
+    caption.textContent = '';
+    body.replaceChildren();
+    period = undefined;
+    fromInput.value = '';
+    toInput.value = '';
+    if (!group) return;
+
+    const from = `${value.slice(0, 7)}-01`;
+    const lastDay = new Date(`${from}T00:00:00Z`);
+    lastDay.setUTCMonth(lastDay.getUTCMonth() + 1, 0);
+    const to = lastDay.toISOString().slice(0, 10);
+    period = { from, to };
+    fromInput.value = from;
+    toInput.value = to;
+    load();
+  }
+
   filter.addEventListener('submit', event => {
     event.preventDefault();
+    if (!group) return;
     const from = fromInput.value;
     const to = toInput.value;
     if (!from || !to || from > to) {
-      ++request;
       message.textContent = 'Дата окончания должна быть не раньше даты начала.';
       return;
     }
+    if (pending && from === period.from && to === period.to) return;
     period = { from, to };
     load();
   });
   return {
-    update(value, leader, refresh) {
-      const wasVisible = !disclosure.hidden;
-      date = value;
-      disclosure.hidden = !leader;
-      if (!leader) {
-        disclosure.open = false;
-        period = undefined;
-      }
-      if (wasVisible !== leader || refresh) load();
+    setGroup,
+    refresh(value) {
+      if (period && value >= period.from && value <= period.to) load();
     }
   };
 }
@@ -211,7 +237,7 @@ export function setupAttendanceMarks(call) {
     const request = ++revision;
     if (form) form.hidden = true;
     if (personalMark) personalMark.hidden = true;
-    analytics?.update(calendar.value, activeRole === 'leader', !!feedback);
+    if (feedback) analytics?.refresh(calendar.value);
     groupMarks.hidden = true;
     list.replaceChildren();
     if (reason) reason.value = '';
@@ -304,13 +330,13 @@ export function setupAttendanceMarks(call) {
       }
       activeRole = role;
       calendar.setGroup(group);
+      analytics?.setGroup(calendar.value, role === 'leader' ? group : null);
       if (group) {
         panel.hidden = false;
         loadDate();
       } else {
         ++revision;
         panel.hidden = true;
-        analytics?.update(null, false);
         groupMarks.hidden = true;
         list.replaceChildren();
         form?.reset();
