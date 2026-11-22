@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<script>
+  // Выбор темы до отрисовки — никакого FOUC
+  (function () {
+    try {
+      var saved = localStorage.getItem('schedule-theme');
+      var dark = saved === 'dark' ||
+                 (!saved && matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    } catch (e) {}
+  })();
+</script>
+<script src="./js/questions.js" defer></script>
+<script src="./js/verified-lessons.js" defer></script>
+<script type="module" src="./js/app.js"></script>
+<script src="./js/pwa.js" defer></script>
+<script type="module" src="./js/attendance.js"></script>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-74Q3M2K18C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-74Q3M2K18C');
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Расписание">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1C2333" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1319" media="(prefers-color-scheme: dark)">
+
+<title>Расписание 4501 · 4502 · 4503</title>
+  <!-- Иконки сайта -->
+  <link rel="icon" href="./assets/icons/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="96x96" href="./assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png">
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+<div id="iosInstallHint" style="display:none;position:fixed;left:12px;right:12px;bottom:var(--page-nav-clearance);z-index:9999;background:#1C2333;color:#EDEBE2;border-radius:14px;padding:14px 16px;box-shadow:0 8px 30px rgba(0,0,0,.28);font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <div style="font-weight:600;font-size:15px;margin-bottom:6px">Добавь расписание на экран «Домой»</div>
+  <div style="line-height:1.45;color:#C9CDD9">В Safari нажми <b>Поделиться</b> → <b>На экран «Домой»</b>. После добавления оно будет открываться как отдельное приложение.</div>
+  <button id="iosInstallClose" style="margin-top:10px;border:0;border-radius:9px;padding:8px 12px;background:#EDEBE2;color:#1C2333;font-weight:600">Понятно</button>
+</div>
+
+<div class="header">
+  <div class="header-inner">
+        <h1 class="brand">
+      <span class="brand-word">Академия</span>
+      <span class="brand-emblem">МВД</span>
+    </h1>
+       <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Сменить тему">
+      <svg class="theme-svg" viewBox="0 0 24 24" aria-hidden="true">
+        <g class="sun">
+          <circle cx="12" cy="12" r="4.2"/>
+          <line x1="12" y1="2.4"  x2="12" y2="5"/>
+          <line x1="12" y1="19"   x2="12" y2="21.6"/>
+          <line x1="2.4" y1="12"  x2="5"  y2="12"/>
+          <line x1="19" y1="12"   x2="21.6" y2="12"/>
+          <line x1="5.2" y1="5.2" x2="7.1" y2="7.1"/>
+          <line x1="16.9" y1="16.9" x2="18.8" y2="18.8"/>
+          <line x1="5.2" y1="18.8" x2="7.1" y2="16.9"/>
+          <line x1="16.9" y1="7.1" x2="18.8" y2="5.2"/>
+        </g>
+        <g class="moon">
+          <path d="M20.6 13.1A8.6 8.6 0 1 1 10.9 3.4a6.7 6.7 0 0 0 9.7 9.7Z"/>
+        </g>
+      </svg>
+    </button>
+</div>
+<blockquote class="header-quote">
+    <p>Ничто так не освобождает человека, как знание.</p>
+    <cite>И. С. Тургенев</cite>
+  </blockquote>
+  </div>
+<main id="schedule-page">
+<input type="radio" name="day" id="day-mon" class="hidden-radio" checked>
+<input type="radio" name="day" id="day-tue" class="hidden-radio">
+<input type="radio" name="day" id="day-wed" class="hidden-radio">
+<input type="radio" name="day" id="day-thu" class="hidden-radio">
+<input type="radio" name="day" id="day-fri" class="hidden-radio">
+<input type="radio" name="day" id="day-sat" class="hidden-radio">
+<input type="radio" name="week" id="week-0" class="hidden-radio">
+<input type="radio" name="week" id="week-1" class="hidden-radio" checked>
+<input type="radio" name="week" id="week-2" class="hidden-radio">
+<input type="radio" name="week" id="week-3" class="hidden-radio">
+<input type="radio" name="week" id="week-4" class="hidden-radio">
+<input type="radio" name="week" id="week-5" class="hidden-radio">
+<input type="radio" name="week" id="week-6" class="hidden-radio">
+<input type="radio" name="week" id="week-7" class="hidden-radio">
+<input type="radio" name="week" id="week-8" class="hidden-radio">
+<input type="radio" name="week" id="week-9" class="hidden-radio">
+<input type="radio" name="week" id="week-10" class="hidden-radio">
+<input type="radio" name="week" id="week-11" class="hidden-radio">
+<input type="radio" name="week" id="week-12" class="hidden-radio">
+<input type="radio" name="week" id="week-13" class="hidden-radio">
+<input type="radio" name="week" id="week-14" class="hidden-radio">
+<input type="radio" name="week" id="week-15" class="hidden-radio">
+<input type="radio" name="week" id="week-16" class="hidden-radio">
+<input type="radio" name="week" id="week-17" class="hidden-radio">
+
+<div class="switcher" id="switcher">
+  <div class="switcher-inner">
+    <div class="switcher-row" id="faculty-row" style="display:none">
+      <span class="switcher-label">Факультет</span>
+      <div class="switcher-tabs" id="faculty-tabs"></div>
+    </div>
+    <div class="switcher-row">
+      <span class="switcher-label">Курс</span>
+      <div class="switcher-tabs" id="course-tabs"></div>
+      <button id="app-info-button" class="app-info-button" type="button" aria-label="О приложении" aria-haspopup="dialog" aria-controls="app-info">
+        <span aria-hidden="true">i</span>
+      </button>
+    </div>
+    <div class="switcher-row">
+      <span class="switcher-label">Группа</span>
+      <div class="switcher-tabs" id="group-tabs"></div>
+    </div>
+  </div>
+</div>
+
+<dialog id="app-info" class="app-info" aria-labelledby="app-info-title">
+  <form method="dialog">
+    <button class="app-info-close" type="submit" aria-label="Закрыть" autofocus>×</button>
+  </form>
+  <h2 id="app-info-title">О приложении</h2>
+  <p class="app-info-author">
+    <span>Разработчик</span>
+    <strong>Voina Roman Nikolaevich</strong>
+  </p>
+  <p class="app-info-description">Если заметили ошибку или у вас есть предложение, напишите мне в Telegram. Буду рад обратной связи.</p>
+  <a class="app-info-contact" href="https://t.me/machiavellianismus" target="_blank" rel="noopener">
+    @machiavellianismus
+    <svg class="app-info-telegram" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="12"/>
+      <path d="M5.7 11.7 17.5 7c.6-.2.9.1.8.7l-2 9.2c-.1.6-.5.8-1 .4l-3.1-2.3-1.5 1.5c-.2.2-.4.2-.6.2l.2-3.2 5.7-5c.3-.2.1-.3-.2-.1l-7 4.3-3-.9c-.6-.2-.6-.5-.1-.7z"/>
+    </svg>
+  </a>
+</dialog>
+
+<div class="app">
+  <div class="wrap">
+
+       <div class="sticky-bar">
+      <div class="week-head">
+        <div class="week-title">
+          <div class="week-month" id="week-month"></div>
+          <div class="week-meta">
+            <div class="week-range" id="week-range"></div>
+            <div class="day-glance" id="day-glance" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="week-actions">
+          <div class="week-rel" id="week-rel"></div>
+          <button class="today-button" id="today-jump" type="button">Сегодня</button>
+        </div>
+      </div>
+
+      <div class="day-nav">
+        <button type="button" class="day-arrow" id="week-prev" aria-label="Предыдущая неделя">‹</button>
+
+        <div class="day-tabs">
+          <label for="day-mon" class="day-tab"><span class="day-num" id="daynum-mon"></span><span class="day-name">Пн</span></label>
+          <label for="day-tue" class="day-tab"><span class="day-num" id="daynum-tue"></span><span class="day-name">Вт</span></label>
+          <label for="day-wed" class="day-tab"><span class="day-num" id="daynum-wed"></span><span class="day-name">Ср</span></label>
+          <label for="day-thu" class="day-tab"><span class="day-num" id="daynum-thu"></span><span class="day-name">Чт</span></label>
+          <label for="day-fri" class="day-tab"><span class="day-num" id="daynum-fri"></span><span class="day-name">Пт</span></label>
+          <label for="day-sat" class="day-tab"><span class="day-num" id="daynum-sat"></span><span class="day-name">Сб</span></label>
+        </div>
+
+        <button type="button" class="day-arrow" id="week-next" aria-label="Следующая неделя">›</button>
+      </div>
+    </div>
+
+    <div id="status-bar" class="status-bar"></div>
+    <div id="schedule"></div>
+  </div>
+</div>
+</main>
+
+<main id="attendance-page" hidden>
+  <div class="wrap">
+    <h2 class="attendance-title">Посещаемость</h2>
+    <section class="attendance-auth attendance-account" aria-label="Учётная запись посещаемости">
+      <p id="attendance-message" aria-live="polite"></p>
+      <p id="attendance-registration-note" class="attendance-registration-note">Система пока работает только для группы <strong>4501</strong>.</p>
+      <form id="attendance-login-form">
+        <button id="attendance-login" type="submit">Войти через Telegram</button>
+      </form>
+      <form id="attendance-claim-form" hidden>
+        <label for="attendance-group">Группа</label>
+        <select id="attendance-group" required>
+          <option value="4501" selected>4501</option>
+          <option value="4502" disabled>4502 · недоступна</option>
+          <option value="4503" disabled>4503 · недоступна</option>
+        </select>
+        <label for="attendance-full-name">Фамилия, имя и отчество</label>
+        <input id="attendance-full-name" type="text" autocomplete="name" maxlength="200" required>
+        <button type="submit">Привязать мою запись</button>
+      </form>
+      <button id="attendance-logout" type="button" hidden>Выйти</button>
+    </section>
+    <section id="attendance-marks" class="attendance-marks" aria-label="Отметки посещаемости" hidden>
+      <section class="attendance-mark-card" aria-labelledby="attendance-mark-title">
+        <div class="attendance-mark-header">
+          <h3 id="attendance-mark-title">Моя отметка</h3>
+          <div id="attendance-date-control"></div>
+        </div>
+        <p id="attendance-mark-message" class="attendance-mark-message" role="status"></p>
+        <form id="attendance-mark-form" hidden>
+          <div class="attendance-mark-fields">
+            <label for="attendance-pair">К каким парам <select id="attendance-pair" required></select></label>
+            <label for="attendance-status">Статус <select id="attendance-status" required></select></label>
+          </div>
+          <div id="attendance-reason-field" class="attendance-reason-field" hidden>
+            <label for="attendance-reason">Причина пропуска (необязательно)</label>
+            <textarea id="attendance-reason" rows="3" maxlength="500" aria-describedby="attendance-reason-note"></textarea>
+            <p id="attendance-reason-note">Староста решает, вносить ли пропуск в бумажный журнал.</p>
+          </div>
+          <div class="attendance-mark-actions">
+            <button type="submit">Сохранить отметку</button>
+            <button id="attendance-clear-mark" type="button" hidden>Снять отметку</button>
+          </div>
+        </form>
+      </section>
+      <section id="attendance-group-marks" class="attendance-mark-card attendance-group-marks" aria-labelledby="attendance-group-marks-title" hidden>
+        <h3 id="attendance-group-marks-title">Отметки группы</h3>
+        <ul id="attendance-mark-list"></ul>
+      </section>
+    </section>
+  </div>
+</main>
+
+<nav class="page-nav" aria-label="Разделы приложения">
+  <a href="#timetable" aria-controls="schedule-page" aria-current="page">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="3"/>
+      <path d="M7 3v4m10-4v4M3 10h18M8 14h.01m4 0h.01m4 0h.01M8 17.5h.01m4 0h.01m4 0h.01"/>
+    </svg>
+    Расписание
+  </a>
+  <a href="#attendance" aria-controls="attendance-page">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="9" cy="8" r="3.5"/>
+      <path d="M2.5 20v-2a4 4 0 0 1 4-4h5a4 4 0 0 1 4 4v2m.5-10 2 2 4-4"/>
+    </svg>
+    Посещаемость
+  </a>
+</nav>
+
+</body>
+</html>

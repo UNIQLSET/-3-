@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Вход через Telegram</title>
+</head>
+<body>
+  <p>Завершаем вход через Telegram…</p>
+  <script>
+    const params = new URLSearchParams(location.search);
+    let destination = './#attendance';
+    try {
+      const attempt = JSON.parse(sessionStorage.getItem('attendance-telegram-attempt'));
+      if (attempt?.admin === true && attempt.state === params.get('state')) destination = './attendance-admin.html';
+      sessionStorage.setItem('attendance-telegram-result', JSON.stringify({
+        code: params.get('code'), state: params.get('state'), error: params.get('error')
+      }));
+    } finally {
+      location.replace(destination);
+    }
+  </script>
+</body>
+</html>

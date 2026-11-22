@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <title>Служебный кабинет</title>
+  <link rel="stylesheet" href="./css/styles.css">
+  <script type="module" src="./js/attendance.js"></script>
+</head>
+<body>
+  <main class="wrap">
+    <h1 class="attendance-title">Служебный кабинет</h1>
+    <section class="attendance-auth" aria-label="Вход в кабинет">
+      <p id="attendance-message" aria-live="polite"></p>
+      <form id="attendance-login-form" data-mode="admin" method="post">
+        <button id="attendance-admin-telegram" type="button">Войти через Telegram</button>
+        <label for="attendance-admin-password">Пароль</label>
+        <input id="attendance-admin-password" type="password" autocomplete="current-password" maxlength="256" required>
+        <button type="submit">Войти с паролем</button>
+      </form>
+      <button id="attendance-logout" type="button" hidden>Выйти</button>
+    </section>
+    <section id="attendance-marks" class="attendance-marks" aria-label="Посещаемость всех групп" hidden>
+      <section class="attendance-mark-card" aria-labelledby="attendance-mark-title">
+        <div class="attendance-mark-header">
+          <h3 id="attendance-mark-title">Посещаемость групп</h3>
+          <div id="attendance-date-control"></div>
+        </div>
+        <div class="attendance-mark-fields">
+          <label for="attendance-review-group">Группа
+            <select id="attendance-review-group"><option value="4501">4501</option><option value="4502">4502</option><option value="4503">4503</option></select>
+          </label>
+        </div>
+        <p id="attendance-mark-message" class="attendance-mark-message" role="status"></p>
+      </section>
+      <section id="attendance-group-marks" class="attendance-mark-card attendance-group-marks" aria-labelledby="attendance-group-marks-title" hidden>
+        <h3 id="attendance-group-marks-title">Отметки группы</h3>
+        <ul id="attendance-mark-list"></ul>
+      </section>
+    </section>
+    <section class="attendance-auth admin-registrations" id="attendance-registrations" aria-labelledby="attendance-registrations-title" hidden>
+      <div class="admin-registrations-heading">
+        <h2 id="attendance-registrations-title">Зарегистрированные</h2>
+        <button id="attendance-registrations-refresh" type="button">Обновить</button>
+      </div>
+      <label for="attendance-registrations-search">Поиск по ФИО, Telegram-имени, @username или ID</label>
+      <input id="attendance-registrations-search" type="search" autocomplete="off">
+      <p id="attendance-registrations-message" role="status"></p>
+      <ul id="attendance-registrations-list"></ul>
+    </section>
+    <section class="attendance-auth" id="attendance-leader-panel" aria-labelledby="attendance-leader-title" hidden>
+      <h2 id="attendance-leader-title">Права старосты</h2>
+      <p id="attendance-leader-message" aria-live="polite"></p>
+      <form id="attendance-leader-form">
+        <label for="attendance-leader">Запись в списке группы</label>
+        <select id="attendance-leader" required></select>
+        <label for="attendance-leader-telegram">Подтверждённый Telegram ID</label>
+        <input id="attendance-leader-telegram" type="text" inputmode="numeric" pattern="[1-9][0-9]{0,15}" maxlength="16" required>
+        <button type="submit">Подтвердить старосту</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>
