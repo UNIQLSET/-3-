@@ -1444,51 +1444,33 @@ body.is-current-week .week-head .week-month{
   to{ opacity:1; transform:translateX(0); }
 }
 
-.lessons{ gap:7px; }
+.lessons{ gap:12px; }
 .lesson-card{
   grid-template-columns:84px minmax(0, 1fr);
-  gap:10px;
-  padding:7px 10px;
+  gap:16px;
+  padding:14px;
   border-left-width:1px;
   border-radius:var(--radius);
   box-shadow:var(--card-shadow);
 }
 .lesson-time{
   align-self:start;
-  padding:4px 3px;
+  padding:8px;
   border-radius:var(--control-radius);
   background:var(--surface-raised);
   color:var(--ink-soft);
   font-size:.75rem;
-  line-height:1.3;
   text-align:center;
 }
 .lesson-time .num{
   display:block;
-  margin:0 0 2px;
+  margin:0 0 3px;
   color:var(--ink);
   font-size:.75rem;
   letter-spacing:0;
 }
-.lesson-heading{
-  display:flex;
-  align-items:baseline;
-  flex-wrap:wrap;
-  gap:2px 8px;
-}
-.lesson-body .subject{
-  min-width:0;
-  margin:0;
-  font-family:var(--font-sans);
-  font-size:1rem;
-  line-height:1.3;
-  overflow-wrap:anywhere;
-}
-.lesson-body .details,.lesson-location{ font-size:.875rem; line-height:1.35; }
-.lesson-location{ margin:2px 0; }
-.lesson-heading + .details{ margin-top:2px; }
-.seminar-q{ margin-top:5px; padding-top:4px; }
-.seminar-q-note{ margin:4px 0 0; }
+.lesson-body .details,.lesson-location{ font-size:.875rem; }
+.lesson-body .subject{ overflow-wrap:anywhere; }
 .lesson-card::before{ display:none; }
 .lesson-card:hover{
   transform:translateY(-1px);
@@ -1501,9 +1483,9 @@ body.is-current-week .week-head .week-month{
 .lesson-card.type-Лекция,
 .lesson-card.type-Практика,
 .lesson-card.type-Семинар{ border-left-color:var(--line); }
+.lesson-body .subject{ font-family:var(--font-sans); font-size:16px; line-height:1.3; }
 .badge{
-  margin:0;
-  padding:2px 7px;
+  padding:3px 8px;
   border-radius:999px;
   font:600 .75rem/1.25 var(--font-sans);
   letter-spacing:0;
@@ -1513,7 +1495,7 @@ body.is-current-week .week-head .week-month{
   transform:none;
   overflow:visible;
   margin-top:6px;
-  padding-top:10px;
+  padding-top:14px;
   border-color:var(--teal);
   border-left-color:var(--teal);
   background:var(--paper-card);
@@ -1553,7 +1535,9 @@ body.is-current-week .week-head .week-month{
   .sticky-bar, html[data-theme="dark"] .sticky-bar{ padding-inline:7px; }
   .day-tabs{ gap:2px; }
   .day-tab{ min-width:0; padding-inline:1px; }
-  .lesson-card{ grid-template-columns:62px minmax(0, 1fr); gap:8px; padding-inline:8px; }
+  .lesson-card{ grid-template-columns:62px minmax(0, 1fr); gap:10px; padding:11px; }
+  .lesson-time{ padding:7px 3px; }
+  .lesson-body .subject{ font-size:1rem; }
   .week-head{
     display:grid;
     grid-template-columns:minmax(0, 1fr) auto;

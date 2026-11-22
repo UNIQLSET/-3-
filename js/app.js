@@ -551,10 +551,8 @@ function render() {
         c.innerHTML =
           `<div class="lesson-time"><span class="num">${num}</span>${time}</div>` +
           `<div class="lesson-body">` +
-          `<div class="lesson-heading">` +
+          `${effType ? `<span class="badge type-${effType}">${effType}</span><br>` : ''}` +
           `<p class="subject">${content.subject}</p>` +
-          `${effType ? `<span class="badge type-${effType}">${effType}</span>` : ''}` +
-          `</div>` +
           `${content.locations.length ? `<div class="lesson-location">${content.locations.map(escapeHtml).join(' · ')}</div>` : ''}` +
           `${content.details ? `<div class="details">${content.details}</div>` : ''}` +
           `${questionsHtml}` +
