@@ -34,12 +34,12 @@ const periodFormat = new Intl.DateTimeFormat('ru', { day: '2-digit', month: '2-d
 
 function setupAnalytics(call) {
   const disclosure = document.getElementById('attendance-analytics');
-  if (!disclosure) return null;
+  const filter = document.getElementById('attendance-analytics-filter');
+  if (!disclosure || !filter) return null;
 
   const message = document.getElementById('attendance-analytics-message');
   const table = document.getElementById('attendance-analytics-table');
   const caption = document.getElementById('attendance-analytics-period');
-  const filter = document.getElementById('attendance-analytics-filter');
   const fromInput = document.getElementById('attendance-analytics-from');
   const toInput = document.getElementById('attendance-analytics-to');
   const body = table.tBodies[0];
