@@ -191,10 +191,18 @@
 </div>
 </main>
 
-<main id="attendance-page" hidden>
+<main id="attendance-page" aria-label="Посещаемость" hidden>
   <div class="wrap">
-    <h2 class="attendance-title">Посещаемость</h2>
-    <section class="attendance-auth attendance-account" aria-label="Учётная запись посещаемости">
+    <details id="attendance-profile" class="attendance-profile" hidden>
+      <summary class="attendance-disclosure">Профиль</summary>
+      <div class="attendance-auth attendance-profile-panel">
+        <p id="attendance-profile-name"></p>
+        <p id="attendance-profile-role"></p>
+        <p id="attendance-profile-message" role="status"></p>
+        <button id="attendance-logout" type="button" hidden>Выйти</button>
+      </div>
+    </details>
+    <section id="attendance-account" class="attendance-auth" aria-label="Вход в посещаемость">
       <p id="attendance-message" aria-live="polite"></p>
       <p id="attendance-registration-note" class="attendance-registration-note">Система пока работает только для группы <strong>4501</strong>.</p>
       <form id="attendance-login-form">
@@ -211,7 +219,6 @@
         <input id="attendance-full-name" type="text" autocomplete="name" maxlength="200" required>
         <button type="submit">Привязать мою запись</button>
       </form>
-      <button id="attendance-logout" type="button" hidden>Выйти</button>
     </section>
     <section id="attendance-marks" class="attendance-marks" aria-label="Отметки посещаемости" hidden>
       <section class="attendance-mark-card" aria-labelledby="attendance-mark-title">
@@ -220,8 +227,8 @@
           <div id="attendance-date-control"></div>
         </div>
         <p id="attendance-mark-message" class="attendance-mark-message" role="status"></p>
-        <details id="attendance-personal-mark" class="attendance-personal-mark" open>
-          <summary>Моя отметка</summary>
+        <details id="attendance-personal-mark" class="attendance-personal-mark" open hidden>
+          <summary class="attendance-disclosure">Моя отметка</summary>
           <form id="attendance-mark-form" hidden>
             <div class="attendance-mark-fields">
               <label for="attendance-pair">К каким парам <select id="attendance-pair" required></select></label>
@@ -247,6 +254,15 @@
         <p id="attendance-absence-empty" class="attendance-mark-message" hidden>На выбранную дату пока нет отметок об отсутствии.</p>
         <ul id="attendance-mark-list"></ul>
       </section>
+      <details id="attendance-analytics" class="attendance-mark-card attendance-analytics" hidden>
+        <summary class="attendance-disclosure">Пропуски без уважительной причины</summary>
+        <p id="attendance-analytics-message" class="attendance-mark-message" role="status"></p>
+        <table id="attendance-analytics-table" hidden>
+          <caption id="attendance-analytics-month"></caption>
+          <thead><tr><th scope="col">Студент</th><th scope="col">Пар</th><th scope="col">Дней</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </details>
     </section>
   </div>
 </main>

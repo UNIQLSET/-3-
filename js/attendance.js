@@ -6,6 +6,11 @@ const message = document.getElementById('attendance-message');
 const form = document.getElementById('attendance-login-form');
 const password = document.getElementById('attendance-admin-password');
 const logout = document.getElementById('attendance-logout');
+const profileMenu = document.getElementById('attendance-profile');
+const profileName = document.getElementById('attendance-profile-name');
+const profileRole = document.getElementById('attendance-profile-role');
+const profileMessage = document.getElementById('attendance-profile-message');
+const account = document.getElementById('attendance-account');
 const claimForm = document.getElementById('attendance-claim-form');
 const claimGroupSelect = document.getElementById('attendance-group');
 const claimName = document.getElementById('attendance-full-name');
@@ -64,17 +69,26 @@ function show(profile, text = '') {
   currentProfile = profile;
   form.hidden = !!profile;
   logout.hidden = !profile;
-  if (!adminPage) form.parentElement.classList.toggle('attendance-account-active', !!profile?.group);
+  if (profileMenu) {
+    profileMenu.hidden = !profile;
+    profileMenu.open = false;
+    profileName.textContent = profile?.name || '';
+    profileRole.textContent = profile?.group
+      ? `Группа ${profile.group}${profile.role === 'leader' ? ' · Староста' : ''}`
+      : '';
+    profileRole.hidden = !profile?.group;
+    profileMessage.textContent = '';
+    account.hidden = !!profile?.group;
+  }
   if (claimForm) claimForm.hidden = profile?.role !== 'unassigned';
   if (registrationNote) registrationNote.hidden = !!profile?.group;
   if (leaderPanel) leaderPanel.hidden = profile?.role !== 'system_admin';
-  const role = profile?.role === 'leader' ? ' · Права старосты' : '';
   if (profile?.role === 'system_admin') {
     message.textContent = profile.name;
   } else if (profile?.role === 'unassigned') {
     message.textContent = `${profile.name} · Подтвердите ФИО для входа`;
   } else {
-    message.textContent = profile ? `${profile.name} · Группа ${profile.group}${role}` : text;
+    message.textContent = text;
   }
   if (adminPage || location.hash === '#attendance') marks?.showFor(profile);
   registrations?.showFor(profile);
@@ -234,7 +248,7 @@ async function signOut() {
     localStorage.removeItem(sessionKey);
     show(null);
   } catch {
-    message.textContent = 'Не удалось выйти. Попробуйте ещё раз.';
+    (profileMessage || message).textContent = 'Не удалось выйти. Попробуйте ещё раз.';
   } finally {
     setBusy(false);
   }

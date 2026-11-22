@@ -14,6 +14,7 @@ const errors = {
   invalid_date: 'Выберите дату.',
   invalid_session: 'Сеанс завершён. Войдите снова.',
   admin_required: 'Войдите в кабинет снова.',
+  leader_required: 'Аналитика доступна старосте группы.',
   invalid_mark: 'Выберите пары и статус.',
   unscheduled_pair: 'На эту дату по расписанию нет выбранных пар.',
   reason_too_long: 'Причина должна быть не длиннее 500 знаков.',
@@ -28,6 +29,59 @@ function element(tag, className, text) {
 }
 
 const nameOrder = new Intl.Collator('ru', { sensitivity: 'base' });
+const monthFormat = new Intl.DateTimeFormat('ru', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+function setupAnalytics(call) {
+  const disclosure = document.getElementById('attendance-analytics');
+  if (!disclosure) return null;
+
+  const message = document.getElementById('attendance-analytics-message');
+  const table = document.getElementById('attendance-analytics-table');
+  const month = document.getElementById('attendance-analytics-month');
+  const body = table.tBodies[0];
+  let date;
+  let request = 0;
+
+  async function load() {
+    const revision = ++request;
+    table.hidden = true;
+    body.replaceChildren();
+    message.textContent = '';
+    if (disclosure.hidden || !disclosure.open || !date) return;
+
+    message.textContent = 'Загружаем сводку…';
+    try {
+      const { students } = await call('attendance_unexcused_summary', { date });
+      if (revision !== request) return;
+      students.sort((a, b) => b.pairs - a.pairs || nameOrder.compare(a.name, b.name));
+      month.textContent = monthFormat.format(new Date(`${date}T00:00:00Z`));
+      body.replaceChildren(...students.map(student => {
+        const row = element('tr');
+        row.classList.toggle('attendance-analytics-zero', student.pairs === 0);
+        const name = element('th', '', student.name);
+        name.scope = 'row';
+        row.append(name, element('td', '', String(student.pairs)), element('td', '', String(student.days)));
+        return row;
+      }));
+      message.textContent = students.length ? '' : 'В списке группы пока нет студентов.';
+      table.hidden = !students.length;
+    } catch (error) {
+      if (revision === request) message.textContent = errors[error.message] || 'Не удалось загрузить сводку. Сверните её и откройте снова.';
+    }
+  }
+
+  disclosure.addEventListener('toggle', load);
+  return {
+    update(value, leader, refresh) {
+      const monthChanged = value?.slice(0, 7) !== date?.slice(0, 7);
+      const wasVisible = !disclosure.hidden;
+      date = value;
+      disclosure.hidden = !leader;
+      if (!leader) disclosure.open = false;
+      if (wasVisible !== leader || monthChanged || refresh) load();
+    }
+  };
+}
 
 function makeList(day, marks, absencesOnly) {
   const people = new Map();
@@ -76,6 +130,7 @@ export function setupAttendanceMarks(call) {
   if (!panel) return null;
 
   const calendar = setupAttendanceCalendar(() => loadDate());
+  const analytics = setupAnalytics(call);
   const message = document.getElementById('attendance-mark-message');
   const form = document.getElementById('attendance-mark-form');
   const reviewGroup = document.getElementById('attendance-review-group');
@@ -124,6 +179,8 @@ export function setupAttendanceMarks(call) {
   async function loadDate(feedback = '', selectedScope = 'all') {
     const request = ++revision;
     if (form) form.hidden = true;
+    if (personalMark) personalMark.hidden = true;
+    analytics?.update(calendar.value, activeRole === 'leader', !!feedback);
     groupMarks.hidden = true;
     list.replaceChildren();
     if (reason) reason.value = '';
@@ -141,7 +198,10 @@ export function setupAttendanceMarks(call) {
         return;
       }
 
-      if (form) showEditor(selectedScope);
+      if (form) {
+        showEditor(selectedScope);
+        personalMark.hidden = false;
+      }
       message.textContent = feedback || (reviewGroup && !day.marks.length ? 'За эту дату отметок пока нет.' : '');
       const absencesOnly = activeRole === 'leader' && !reviewGroup;
       const marks = absencesOnly ? day.marks.filter(mark => mark.status !== 'ПР') : day.marks;
@@ -219,6 +279,7 @@ export function setupAttendanceMarks(call) {
       } else {
         ++revision;
         panel.hidden = true;
+        analytics?.update(null, false);
         groupMarks.hidden = true;
         list.replaceChildren();
         form?.reset();
