@@ -69,10 +69,10 @@
       display:flex; align-items:center; gap:10px;
       padding:10px 12px 10px 16px;
       border-radius:100px;
-      background:#1C2333; color:#EDEBE2;
+      background:var(--paper-card); color:var(--ink); border:1px solid var(--line);
       box-shadow:0 8px 24px rgba(0,0,0,.28);
-      font:600 13.5px 'IBM Plex Sans',sans-serif;
-      max-width:calc(100vw - 24px);
+      font:600 13.5px var(--font-sans);
+      width:max-content; max-width:calc(100vw - 24px);
       animation:pwa-slide-up .35s ease-out;
       -webkit-tap-highlight-color:transparent;
     `;
@@ -82,9 +82,7 @@
     label.textContent = '⤓ Установить приложение';
     label.style.cssText = `
       cursor:pointer;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      min-width:0;
     `;
     label.onclick = async () => {
       if (!deferredPrompt) return;
@@ -110,17 +108,17 @@
       flex:0 0 auto;
       width:26px; height:26px;
       border-radius:100px;
-      border:1px solid rgba(255,255,255,.25);
+      border:1px solid var(--line);
       background:transparent;
-      color:#EDEBE2;
-      font:600 16px/1 'IBM Plex Sans',sans-serif;
+      color:var(--ink);
+      font:600 16px/1 var(--font-sans);
       cursor:pointer;
       display:flex; align-items:center; justify-content:center;
       padding:0;
       opacity:.75;
       transition:opacity .12s, background .12s;
     `;
-    closeBtn.onmouseenter = () => { closeBtn.style.opacity = '1'; closeBtn.style.background = 'rgba(255,255,255,.1)'; };
+    closeBtn.onmouseenter = () => { closeBtn.style.opacity = '1'; closeBtn.style.background = 'var(--teal-bg)'; };
     closeBtn.onmouseleave = () => { closeBtn.style.opacity = '.75'; closeBtn.style.background = 'transparent'; };
     closeBtn.onclick = () => {
       // Запоминаем что в этот раз отказался — вернёмся через N дней
@@ -135,16 +133,16 @@
     neverBtn.style.cssText = `
       flex:0 0 auto;
       border:0; background:transparent;
-      color:#8E97AD;
-      font:500 11px 'IBM Plex Mono',monospace;
+      color:var(--muted);
+      font:500 11px var(--font-mono);
       padding:4px 2px;
       cursor:pointer;
       text-decoration:underline;
       text-underline-offset:2px;
       white-space:nowrap;
     `;
-    neverBtn.onmouseenter = () => { neverBtn.style.color = '#C9CDD9'; };
-    neverBtn.onmouseleave = () => { neverBtn.style.color = '#8E97AD'; };
+    neverBtn.onmouseenter = () => { neverBtn.style.color = 'var(--ink-soft)'; };
+    neverBtn.onmouseleave = () => { neverBtn.style.color = 'var(--muted)'; };
     neverBtn.onclick = () => {
       try { localStorage.setItem(INSTALL_HIDDEN_KEY, '1'); } catch (e) {}
       removeBar();
@@ -308,9 +306,10 @@
           left: 12px; right: 12px;
           bottom: var(--page-nav-clearance);
           z-index: 9999;
-          background: #1C2333;
-          color: #EDEBE2;
-          border-radius: 16px;
+          background: var(--paper-card);
+          color: var(--ink);
+          border: 1px solid var(--line);
+          border-radius: var(--radius);
           padding: 18px 18px 16px;
           box-shadow: 0 12px 40px rgba(0,0,0,.4);
           font: 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -336,16 +335,16 @@
         #icon-update-notice .iun-icon {
           width: 34px; height: 34px;
           border-radius: 10px;
-          background: linear-gradient(135deg, #276258 0%, #1C2333 100%);
+          background: var(--teal-bg);
           display: flex; align-items: center; justify-content: center;
           font-size: 16px; flex-shrink: 0;
         }
         #icon-update-notice .iun-title {
-          font-family: 'Fraunces', Georgia, serif;
+          font-family: var(--font-sans);
           font-weight: 600; font-size: 16px; line-height: 1.15;
         }
         #icon-update-notice .iun-body {
-          color: #C9CDD9; line-height: 1.5; font-size: 13.5px;
+          color: var(--ink-soft); line-height: 1.5; font-size: 13.5px;
           margin: 0 0 14px;
         }
         #icon-update-notice .iun-steps {
@@ -357,19 +356,19 @@
           counter-increment: iunstep;
           position: relative;
           padding-left: 30px;
-          color: #D8DCE6; font-size: 13px; line-height: 1.4;
+          color: var(--ink-soft); font-size: 13px; line-height: 1.4;
         }
         #icon-update-notice .iun-steps li::before {
           content: counter(iunstep);
           position: absolute; left: 0; top: 0;
           width: 20px; height: 20px;
           border-radius: 50%;
-          background: rgba(255,255,255,.1);
-          color: #EDEBE2;
-          font: 600 11px/20px 'IBM Plex Mono', monospace;
+          background: var(--teal-bg);
+          color: var(--ink);
+          font: 600 11px/20px var(--font-mono);
           text-align: center;
         }
-        #icon-update-notice .iun-steps b { color: #EDEBE2; font-weight: 600; }
+        #icon-update-notice .iun-steps b { color: var(--ink); font-weight: 600; }
         #icon-update-notice .iun-actions {
           display: flex; gap: 8px; flex-wrap: wrap;
         }
@@ -382,16 +381,16 @@
           -webkit-tap-highlight-color: transparent;
         }
         #icon-update-notice .iun-primary {
-          background: #EDEBE2; color: #1C2333;
+          background: var(--primary-action); color: var(--primary-on-action);
         }
         #icon-update-notice .iun-primary:active { transform: scale(.98); }
         #icon-update-notice .iun-secondary {
           background: transparent;
-          color: #8E97AD;
-          border: 1px solid rgba(255,255,255,.15);
+          color: var(--muted);
+          border: 1px solid var(--line);
         }
         #icon-update-notice .iun-secondary:active {
-          background: rgba(255,255,255,.06);
+          background: var(--surface-raised);
         }
       `;
       document.head.appendChild(style);

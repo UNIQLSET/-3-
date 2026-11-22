@@ -1,21 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<script>
-  // Выбор темы до отрисовки — никакого FOUC
-  (function () {
-    try {
-      var saved = localStorage.getItem('schedule-theme');
-      var dark = saved === 'dark' ||
-                 (!saved && matchMedia('(prefers-color-scheme: dark)').matches);
-      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    } catch (e) {}
-  })();
-</script>
 <script src="./js/questions.js" defer></script>
 <script src="./js/verified-lessons.js" defer></script>
-<script type="module" src="./js/app.js"></script>
-<script src="./js/pwa.js" defer></script>
+<script type="module" src="./js/app.js?v=20261122-azure-flow"></script>
+<script src="./js/pwa.js?v=20261122-azure-flow" defer></script>
 <script type="module" src="./js/attendance.js?v=20261122-personal-mark"></script>
 
 <!-- Google Analytics -->
@@ -28,12 +17,12 @@
 </script>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Расписание">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#1C2333" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0F1319" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#ffffff">
+<script src="./js/theme.js"></script>
 
 <title>Расписание 4501 · 4502 · 4503</title>
   <!-- Иконки сайта -->
@@ -45,23 +34,27 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/styles.css?v=20261122-attendance-input">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/styles.css?v=20261122-azure-flow">
 </head>
 <body>
 
-<div id="iosInstallHint" style="display:none;position:fixed;left:12px;right:12px;bottom:var(--page-nav-clearance);z-index:9999;background:#1C2333;color:#EDEBE2;border-radius:14px;padding:14px 16px;box-shadow:0 8px 30px rgba(0,0,0,.28);font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+<div id="iosInstallHint" style="display:none;position:fixed;left:12px;right:12px;bottom:var(--page-nav-clearance);z-index:9999;background:var(--paper-card);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:0 8px 30px rgba(0,0,0,.28);font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
   <div style="font-weight:600;font-size:15px;margin-bottom:6px">Добавь расписание на экран «Домой»</div>
-  <div style="line-height:1.45;color:#C9CDD9">В Safari нажми <b>Поделиться</b> → <b>На экран «Домой»</b>. После добавления оно будет открываться как отдельное приложение.</div>
-  <button id="iosInstallClose" style="margin-top:10px;border:0;border-radius:9px;padding:8px 12px;background:#EDEBE2;color:#1C2333;font-weight:600">Понятно</button>
+  <div style="line-height:1.45;color:var(--ink-soft)">В Safari нажми <b>Поделиться</b> → <b>На экран «Домой»</b>. После добавления оно будет открываться как отдельное приложение.</div>
+  <button id="iosInstallClose" style="margin-top:10px;border:0;border-radius:9px;padding:8px 12px;background:var(--primary-action);color:var(--primary-on-action);font-weight:600">Понятно</button>
 </div>
 
 <div class="header">
   <div class="header-inner">
-    <h1 class="brand">
+    <p class="brand">
+      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="3"/>
+        <path d="M7 3v4m10-4v4M3 10h18m-13 5h2m4 0h2"/>
+      </svg>
       <span class="brand-word">Академия</span>
       <span class="brand-emblem">МВД</span>
-    </h1>
+    </p>
     <div class="header-actions">
       <details id="attendance-profile" class="attendance-profile" hidden>
         <summary class="attendance-profile-trigger" aria-label="Профиль" title="Профиль">
@@ -77,26 +70,45 @@
           <button id="attendance-logout" type="button" hidden>Выйти</button>
         </div>
       </details>
-      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Сменить тему">
-        <svg class="theme-svg" viewBox="0 0 24 24" aria-hidden="true">
-          <g class="sun">
-            <circle cx="12" cy="12" r="4.2"/>
-            <line x1="12" y1="2.4"  x2="12" y2="5"/>
-            <line x1="12" y1="19"   x2="12" y2="21.6"/>
-            <line x1="2.4" y1="12"  x2="5"  y2="12"/>
-            <line x1="19" y1="12"   x2="21.6" y2="12"/>
-            <line x1="5.2" y1="5.2" x2="7.1" y2="7.1"/>
-            <line x1="16.9" y1="16.9" x2="18.8" y2="18.8"/>
-            <line x1="5.2" y1="18.8" x2="7.1" y2="16.9"/>
-            <line x1="16.9" y1="7.1" x2="18.8" y2="5.2"/>
-          </g>
-          <g class="moon">
-            <path d="M20.6 13.1A8.6 8.6 0 1 1 10.9 3.4a6.7 6.7 0 0 0 9.7 9.7Z"/>
-          </g>
-        </svg>
-      </button>
+      <div class="header-menu" id="header-menu">
+        <button id="header-menu-toggle" class="header-menu-toggle" type="button" aria-label="Дополнительные действия" aria-expanded="false" aria-controls="header-menu-items">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M8 12h.01m3.99 0h.01m3.99 0h.01" stroke-width="2.5"/>
+          </svg>
+        </button>
+        <div class="header-menu-surface">
+          <div class="header-menu-clip">
+            <ul id="header-menu-items" class="header-menu-items" inert>
+              <li><button id="theme-toggle" type="button">
+                <svg class="theme-svg" viewBox="0 0 24 24" aria-hidden="true">
+                  <g class="sun">
+                    <circle cx="12" cy="12" r="4"/>
+                    <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M19 5l-1.5 1.5m-11 11L5 19"/>
+                  </g>
+                  <path class="moon" d="M20.6 13.1A8.6 8.6 0 1 1 10.9 3.4a6.7 6.7 0 0 0 9.7 9.7Z"/>
+                </svg>
+                Сменить тему
+              </button></li>
+              <li><button id="app-info-button" type="button" aria-haspopup="dialog" aria-controls="app-info">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9"/>
+                  <path d="M12 11v5m0-8h.01"/>
+                </svg>
+                О приложении
+              </button></li>
+              <li><button id="share-schedule" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 15V3m-4 4 4-4 4 4m-9 4H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/>
+                </svg>
+                Поделиться расписанием
+              </button></li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 <blockquote class="header-quote">
     <p>Ничто так не освобождает человека, как знание.</p>
     <cite>И. С. Тургенев</cite>
@@ -129,6 +141,7 @@
 <input type="radio" name="week" id="week-17" class="hidden-radio">
 
 <div class="switcher" id="switcher">
+  <h1 class="schedule-title">Расписание занятий</h1>
   <div class="switcher-inner">
     <div class="switcher-row" id="faculty-row" style="display:none">
       <span class="switcher-label">Факультет</span>
@@ -137,9 +150,6 @@
     <div class="switcher-row">
       <span class="switcher-label">Курс</span>
       <div class="switcher-tabs" id="course-tabs"></div>
-      <button id="app-info-button" class="app-info-button" type="button" aria-label="О приложении" aria-haspopup="dialog" aria-controls="app-info">
-        <span aria-hidden="true">i</span>
-      </button>
     </div>
     <div class="switcher-row">
       <span class="switcher-label">Группа</span>
@@ -159,13 +169,22 @@
   </p>
   <p class="app-info-description">Если заметили ошибку или у вас есть предложение, напишите мне в Telegram. Буду рад обратной связи.</p>
   <a class="app-info-contact" href="https://t.me/machiavellianismus" target="_blank" rel="noopener">
-    @machiavellianismus
-    <svg class="app-info-telegram" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="12"/>
-      <path d="M5.7 11.7 17.5 7c.6-.2.9.1.8.7l-2 9.2c-.1.6-.5.8-1 .4l-3.1-2.3-1.5 1.5c-.2.2-.4.2-.6.2l.2-3.2 5.7-5c.3-.2.1-.3-.2-.1l-7 4.3-3-.9c-.6-.2-.6-.5-.1-.7z"/>
+    <svg class="app-info-telegram" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M22.122 10.040c0.006-0 0.014-0 0.022-0 0.209 0 0.403 0.065 0.562 0.177l-0.003-0.002c0.116 0.101 0.194 0.243 0.213 0.403l0 0.003c0.020 0.122 0.031 0.262 0.031 0.405 0 0.065-0.002 0.129-0.007 0.193l0-0.009c-0.225 2.369-1.201 8.114-1.697 10.766-0.21 1.123-0.623 1.499-1.023 1.535-0.869 0.081-1.529-0.574-2.371-1.126-1.318-0.865-2.063-1.403-3.342-2.246-1.479-0.973-0.52-1.51 0.322-2.384 0.221-0.23 4.052-3.715 4.127-4.031 0.004-0.019 0.006-0.040 0.006-0.062 0-0.078-0.029-0.149-0.076-0.203l0 0c-0.052-0.034-0.117-0.053-0.185-0.053-0.045 0-0.088 0.009-0.128 0.024l0.002-0.001q-0.198 0.045-6.316 4.174c-0.445 0.351-1.007 0.573-1.619 0.599l-0.006 0c-0.867-0.105-1.654-0.298-2.401-0.573l0.074 0.024c-0.938-0.306-1.683-0.467-1.619-0.985q0.051-0.404 1.114-0.827 6.548-2.853 8.733-3.761c1.607-0.853 3.47-1.555 5.429-2.010l0.157-0.031zM15.93 1.025c-8.302 0.020-15.025 6.755-15.025 15.060 0 8.317 6.742 15.060 15.060 15.060s15.060-6.742 15.060-15.060c0-8.305-6.723-15.040-15.023-15.060h-0.002q-0.035-0-0.070 0z"/>
     </svg>
+    @machiavellianismus
   </a>
 </dialog>
+
+<dialog id="share-dialog" class="app-info share-dialog" aria-labelledby="share-dialog-title">
+  <form method="dialog">
+    <button class="app-info-close" type="submit" aria-label="Закрыть">×</button>
+  </form>
+  <h2 id="share-dialog-title">Ссылка на расписание</h2>
+  <label for="share-url">Скопируйте ссылку</label>
+  <input id="share-url" type="url" readonly autofocus>
+</dialog>
+<p id="share-status" class="share-status" role="status"></p>
 
 <div class="app">
   <div class="wrap">

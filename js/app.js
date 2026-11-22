@@ -1,5 +1,5 @@
 
-import { findScheduleRow, scheduleDays as DAYS, scheduleMaxWeek as MAX, scheduleStart } from './schedule.js';
+import { findScheduleRow, isCalendarDate, scheduleDays as DAYS, scheduleMaxWeek as MAX, scheduleStart } from './schedule.js';
 
 (() => {
   const pageLinks = document.querySelectorAll('.page-nav a');
@@ -20,6 +20,41 @@ import { findScheduleRow, scheduleDays as DAYS, scheduleMaxWeek as MAX, schedule
 
   updatePageNavigation();
   window.addEventListener('hashchange', updatePageNavigation);
+
+  const headerMenu = document.getElementById('header-menu');
+  const menuToggle = document.getElementById('header-menu-toggle');
+  const menuItems = document.getElementById('header-menu-items');
+
+  function closeMenu(restoreFocus = false) {
+    if (menuItems.inert) return;
+    menuToggle.setAttribute('aria-expanded', 'false');
+    menuItems.inert = true;
+    if (restoreFocus) menuToggle.focus();
+  }
+
+  menuToggle.addEventListener('click', () => {
+    if (!menuItems.inert) {
+      closeMenu(true);
+      return;
+    }
+    menuToggle.setAttribute('aria-expanded', 'true');
+    menuItems.inert = false;
+    menuItems.querySelector('button').focus();
+  });
+  menuItems.addEventListener('click', event => {
+    if (event.target.closest('button')) closeMenu(true);
+  }, true);
+  headerMenu.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || menuItems.inert) return;
+    event.preventDefault();
+    closeMenu(true);
+  });
+  headerMenu.addEventListener('focusout', event => {
+    if (event.relatedTarget && !headerMenu.contains(event.relatedTarget)) closeMenu();
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!headerMenu.contains(event.target)) closeMenu();
+  });
 
   const infoButton = document.getElementById('app-info-button');
   const infoDialog = document.getElementById('app-info');
@@ -67,36 +102,6 @@ import { findScheduleRow, scheduleDays as DAYS, scheduleMaxWeek as MAX, schedule
   // ─── СОСТОЯНИЕ ─────────────────────────────────────────────────
   const state = { faculty: FACULTIES[0].id, course: null, group: null };
   let slideDir = null;
-  // ─── ТЕМА ─────────────────────────────────────────────
-(function initTheme() {
-  const root = document.documentElement;
-  const btn  = document.getElementById('theme-toggle');
-  const icon = btn ? btn.querySelector('.theme-icon') : null;
-  const mq   = matchMedia('(prefers-color-scheme: dark)');
-
-  const paint = (isDark) => {
-    root.dataset.theme = isDark ? 'dark' : 'light';
-    if (icon) icon.textContent = isDark ? '☀️' : '🌙';
-    // обновим color бара в мобильном Chrome
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = isDark ? '#0F1319' : '#1C2333';
-  };
-
-  paint(root.dataset.theme === 'dark');
-
-  if (btn) {
-    btn.addEventListener('click', () => {
-      const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-      try { localStorage.setItem('schedule-theme', next); } catch (e) {}
-      paint(next === 'dark');
-    });
-  }
-
-  mq.addEventListener('change', () => {
-    if (localStorage.getItem('schedule-theme')) return;
-    paint(mq.matches);
-  });
-})();
   (function loadState() {
     try {
       const f = localStorage.getItem('schedule-faculty');
@@ -139,6 +144,64 @@ import { findScheduleRow, scheduleDays as DAYS, scheduleMaxWeek as MAX, schedule
   function day(d) {
     return d.getDay() > 0 && d.getDay() < 7 ? DAYS[d.getDay() - 1] : 'sat';
   }
+
+  const dayMs = 86400000;
+  const scheduleStartTime = Date.parse(scheduleStart);
+
+  function selectSharedSchedule() {
+    if (location.hash === '#attendance') return false;
+    const params = new URLSearchParams(location.search);
+    const group = params.get('group');
+    const date = params.get('date');
+    if (!group || !isCalendarDate(date)) return false;
+
+    const elapsed = (Date.parse(date) - scheduleStartTime) / dayMs;
+    const sharedWeek = Math.floor(elapsed / 7);
+    const sharedDay = DAYS[elapsed % 7];
+    if (sharedWeek < 0 || sharedWeek > MAX || !sharedDay) return false;
+
+    const faculty = FACULTIES.find(f => f.courses.some(c => c.groups.includes(group)));
+    if (!faculty) return false;
+    state.faculty = faculty.id;
+    state.course = faculty.courses.find(c => c.groups.includes(group)).id;
+    state.group = group;
+    set('week-' + sharedWeek);
+    set('day-' + sharedDay);
+    return true;
+  }
+
+  const shareStatus = document.getElementById('share-status');
+  let shareStatusTimer;
+
+  document.getElementById('share-schedule').addEventListener('click', async () => {
+    const elapsed = Number(checked('week')) * 7 + DAYS.indexOf(checked('day'));
+    const date = new Date(scheduleStartTime + elapsed * dayMs);
+    const url = new URL(location.pathname, location.origin);
+    url.searchParams.set('group', state.group);
+    url.searchParams.set('date', date.toISOString().slice(0, 10));
+
+    if (navigator.share) {
+      const dateLabel = date.toLocaleDateString('ru-RU', {day: 'numeric', month: 'long', timeZone: 'UTC'});
+      try {
+        await navigator.share({title: `Расписание ${state.group} · ${dateLabel}`, url: url.href});
+        return;
+      } catch (error) {
+        if (error.name === 'AbortError') return;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url.href);
+      shareStatus.textContent = 'Ссылка на расписание скопирована';
+      clearTimeout(shareStatusTimer);
+      shareStatusTimer = setTimeout(() => { shareStatus.textContent = ''; }, 3500);
+    } catch {
+      const input = document.getElementById('share-url');
+      input.value = url.href;
+      document.getElementById('share-dialog').showModal();
+      input.select();
+    }
+  });
 
   // ─── РЕНДЕР СЕЛЕКТОРА ──────────────────────────────────────────
   function renderSwitcher() {
@@ -814,15 +877,14 @@ document.getElementById('schedule')?.addEventListener('click', e => {
 });
 
 // ─── ИНИЦИАЛИЗАЦИЯ ────────────────────────────────────────────
-renderSwitcher();
 const n = new Date();
-set('day-' + day(n));
-set('week-' + week(n));
-render();
+if (!selectSharedSchedule()) {
+  set('day-' + day(n));
+  set('week-' + week(n));
+}
+renderSwitcher();
 updateDayNumbers();
 render();
-updateDayNumbers();
-updateWeekInfo();
 
 let last = n.toDateString();
 setInterval(() => {
