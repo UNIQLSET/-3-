@@ -259,7 +259,7 @@ document.getElementById('attendance-admin-telegram')?.addEventListener('click', 
 claimForm?.addEventListener('submit', claimGroup);
 leaderForm?.addEventListener('submit', assignLeader);
 logout.addEventListener('click', signOut);
-if (profileMenu) document.addEventListener('click', event => {
+if (profileMenu) document.addEventListener('pointerup', event => {
   if (profileMenu.open && !profileMenu.contains(event.target)) profileMenu.open = false;
 }, { capture: true });
 if (!adminPage) window.addEventListener('hashchange', () => {

@@ -1816,11 +1816,15 @@ details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotat
   gap:8px;
   margin-top:12px;
 }
-.attendance-analytics-filter input{
-  display:block;
-  width:100%;
-  max-width:100%;
-  margin-top:4px;
+.attendance-analytics-filter label{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr);
+  gap:4px;
+  min-width:0;
+}
+.attendance-analytics-filter input[type="date"]{
+  justify-self:stretch;
+  margin:0;
 }
 .attendance-analytics-filter button{
   min-height:44px;
@@ -1832,8 +1836,12 @@ details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotat
   font:600 14px 'IBM Plex Sans', sans-serif;
   cursor:pointer;
 }
-@media (max-width:480px){
+@media (max-width:520px){
   .attendance-analytics-filter{ grid-template-columns:minmax(0, 1fr); }
+  .attendance-analytics-filter input[type="date"]{
+    -webkit-appearance:none;
+    appearance:none;
+  }
   .attendance-analytics-filter button{ justify-self:start; }
 }
 .attendance-analytics table{
