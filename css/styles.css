@@ -364,6 +364,7 @@ body.is-current-week .week-head .week-month{ color:var(--teal); }
   position:relative;
   overflow:hidden;
   animation:card-in .32s ease-out backwards;
+  -webkit-tap-highlight-color:transparent;
 }
 .lesson-card::before{
   content:'';
@@ -373,12 +374,6 @@ body.is-current-week .week-head .week-month{ color:var(--teal); }
   background:linear-gradient(180deg,
     rgba(255,255,255,.02) 0%,
     transparent 30%);
-}
-.lesson-card:hover{
-  transform:translateY(-1px);
-  box-shadow:
-    0 1px 2px rgba(0,0,0,.05),
-    0 14px 30px -16px rgba(0,0,0,.28);
 }
 .lesson-card.type-Лекция {
   border-left-color:var(--gold);
@@ -1458,11 +1453,6 @@ body.is-current-week .week-head .week-month{
 .lesson-body .details,.lesson-location{ font-size:.875rem; }
 .lesson-body .subject{ overflow-wrap:anywhere; }
 .lesson-card::before{ display:none; }
-.lesson-card:hover{
-  transform:translateY(-1px);
-  border-color:color-mix(in srgb, var(--teal) 40%, var(--line));
-  box-shadow:none;
-}
 .lesson-card.type-Лекция,
 .lesson-card.type-Практика,
 .lesson-card.type-Семинар{ box-shadow:none; }

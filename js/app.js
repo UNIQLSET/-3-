@@ -46,12 +46,13 @@ import { findScheduleRow, isCalendarDate, scheduleDays as DAYS, scheduleMaxWeek 
     if (menuContent.inert) return;
     menuToggle.setAttribute('aria-expanded', 'false');
     menuContent.inert = true;
-    if (restoreFocus) menuToggle.focus();
+    if (restoreFocus) menuToggle.focus({preventScroll: true});
+    else if (menuContent.contains(document.activeElement)) document.activeElement.blur();
   }
 
-  menuToggle.addEventListener('click', () => {
+  menuToggle.addEventListener('click', event => {
     if (!menuContent.inert) {
-      closeMenu(true);
+      closeMenu(event.detail === 0);
       return;
     }
     menuToggle.setAttribute('aria-expanded', 'true');
@@ -60,7 +61,7 @@ import { findScheduleRow, isCalendarDate, scheduleDays as DAYS, scheduleMaxWeek 
     (activeCourse || menuItems.querySelector('button')).focus({preventScroll: true});
   });
   menuItems.addEventListener('click', event => {
-    if (event.target.closest('button')) closeMenu(true);
+    if (event.target.closest('button')) closeMenu(event.detail === 0);
   }, true);
   headerMenu.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || menuContent.inert) return;
@@ -266,7 +267,7 @@ import { findScheduleRow, isCalendarDate, scheduleDays as DAYS, scheduleMaxWeek 
     saveState();
     render();
     if (group) {
-      closeMenu(true);
+      closeMenu(event.detail === 0);
     } else {
       tabs.querySelector('[aria-pressed="true"]').focus({preventScroll: true});
     }
