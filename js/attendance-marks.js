@@ -206,13 +206,38 @@ export function setupAttendanceMarks(call) {
   let revision = 0;
   let saving = false;
   let day = null;
+  let loadingDate;
+  let dayLoadingMessage;
+  let activeGroup = null;
   let activeRole = null;
 
   function updateReason() {
     const showReason = status.value === 'ПН';
     reasonField.hidden = !showReason;
-    reason.disabled = saving || !showReason;
+    reason.disabled = saving || !day || !showReason;
     if (!showReason) reason.value = '';
+  }
+
+  function updateEditorControls() {
+    if (!form) return;
+    for (const control of form.elements) control.disabled = saving || !day;
+    updateReason();
+  }
+
+  function clearDay() {
+    ++revision;
+    clearTimeout(dayLoadingMessage);
+    loadingDate = undefined;
+    day = null;
+    groupMarks.hidden = true;
+    groupMarks.removeAttribute('aria-busy');
+    list.replaceChildren();
+    if (form) {
+      form.hidden = true;
+      form.removeAttribute('aria-busy');
+      form.reset();
+      updateEditorControls();
+    }
   }
 
   function updateClear() {
@@ -228,37 +253,42 @@ export function setupAttendanceMarks(call) {
     placeholder.disabled = true;
     status.replaceChildren(placeholder, ...[...statuses].map(([code, { label }]) =>
       new Option(`${code} · ${label}`, code)));
-    updateReason();
+    updateEditorControls();
     updateClear();
     form.hidden = false;
   }
 
   async function loadDate(feedback = '', selectedScope = 'all') {
+    const date = calendar.value;
+    if (!feedback && loadingDate === date) return;
     const request = ++revision;
-    if (form) form.hidden = true;
-    if (personalMark) personalMark.hidden = true;
-    if (feedback) analytics?.refresh(calendar.value);
-    groupMarks.hidden = true;
-    list.replaceChildren();
-    if (reason) reason.value = '';
+    loadingDate = date;
+    clearTimeout(dayLoadingMessage);
     day = null;
-    message.textContent = 'Загружаем пары и отметки…';
+    if (feedback) analytics?.refresh(date);
+    updateEditorControls();
+    form?.setAttribute('aria-busy', 'true');
+    groupMarks.setAttribute('aria-busy', 'true');
+    message.textContent = feedback;
+    if (!feedback) dayLoadingMessage = setTimeout(() => {
+      message.textContent = 'Загружаем пары и отметки…';
+    }, 300);
 
     try {
       const data = reviewGroup
-        ? await call('attendance_admin_day', { date: calendar.value, group: reviewGroup.value })
-        : await call('attendance_day', { date: calendar.value });
+        ? await call('attendance_admin_day', { date, group: reviewGroup.value })
+        : await call('attendance_day', { date });
       if (request !== revision) return;
-      day = data;
-      if (!day.pairs.length) {
+      groupMarks.hidden = true;
+      list.replaceChildren();
+      if (!data.pairs.length) {
+        if (form) form.hidden = true;
         message.textContent = 'На эту дату занятий по расписанию нет.';
         return;
       }
 
-      if (form) {
-        showEditor(selectedScope);
-        personalMark.hidden = false;
-      }
+      day = data;
+      if (form) showEditor(selectedScope);
       message.textContent = feedback || (reviewGroup && !day.marks.length ? 'За эту дату отметок пока нет.' : '');
       const absencesOnly = activeRole === 'leader' && !reviewGroup;
       const marks = absencesOnly ? day.marks.filter(mark => mark.status !== 'ПР') : day.marks;
@@ -272,7 +302,19 @@ export function setupAttendanceMarks(call) {
         groupMarks.hidden = false;
       }
     } catch (error) {
-      if (request === revision) message.textContent = errors[error.message] || 'Не удалось загрузить отметки.';
+      if (request !== revision) return;
+      day = null;
+      if (form) form.hidden = true;
+      groupMarks.hidden = true;
+      list.replaceChildren();
+      message.textContent = errors[error.message] || 'Не удалось загрузить отметки.';
+    } finally {
+      if (request === revision) {
+        clearTimeout(dayLoadingMessage);
+        loadingDate = undefined;
+        form?.removeAttribute('aria-busy');
+        groupMarks.removeAttribute('aria-busy');
+      }
     }
   }
 
@@ -289,7 +331,7 @@ export function setupAttendanceMarks(call) {
 
     saving = true;
     calendar.setDisabled(true);
-    for (const control of form.elements) control.disabled = true;
+    updateEditorControls();
     message.textContent = 'Сохраняем…';
     try {
       await call('attendance_save', fields);
@@ -299,8 +341,7 @@ export function setupAttendanceMarks(call) {
     } finally {
       saving = false;
       calendar.setDisabled(false);
-      for (const control of form.elements) control.disabled = false;
-      updateReason();
+      updateEditorControls();
     }
   }
 
@@ -312,6 +353,8 @@ export function setupAttendanceMarks(call) {
   });
   clear?.addEventListener('click', () => save(true));
   reviewGroup?.addEventListener('change', () => {
+    activeGroup = reviewGroup.value;
+    clearDay();
     calendar.setGroup(reviewGroup.value);
     loadDate();
   });
@@ -320,6 +363,7 @@ export function setupAttendanceMarks(call) {
     showFor(profile) {
       const group = reviewGroup ? (profile?.role === 'system_admin' ? reviewGroup.value : null) : profile?.group;
       const role = group ? profile.role : null;
+      if (group !== activeGroup || role !== activeRole) clearDay();
       if (personalMark && role !== activeRole) {
         const isLeader = role === 'leader';
         personalMark.open = !isLeader;
@@ -328,6 +372,8 @@ export function setupAttendanceMarks(call) {
         absenceCount.hidden = !isLeader;
         absenceEmpty.hidden = true;
       }
+      if (personalMark) personalMark.hidden = !group;
+      activeGroup = group;
       activeRole = role;
       calendar.setGroup(group);
       analytics?.setGroup(calendar.value, role === 'leader' ? group : null);
@@ -335,12 +381,8 @@ export function setupAttendanceMarks(call) {
         panel.hidden = false;
         loadDate();
       } else {
-        ++revision;
         panel.hidden = true;
-        groupMarks.hidden = true;
-        list.replaceChildren();
-        form?.reset();
-        day = null;
+        message.textContent = '';
       }
     }
   };

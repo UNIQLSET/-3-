@@ -1807,22 +1807,28 @@ html[data-theme="dark"] .attendance-marks{
 details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotate(45deg); }
 .attendance-disclosure:focus-visible{ outline:2px solid var(--teal); outline-offset:3px; }
 .attendance-analytics > summary{ width:100%; }
-#attendance-analytics-message{ min-height:1.4em; margin:8px 0 0; }
+#attendance-analytics-message,
+#attendance-mark-message{ min-height:1.4em; margin:8px 0 0; }
+.attendance-group-marks[aria-busy="true"] > *{ visibility:hidden; }
 @media (prefers-reduced-motion:no-preference){
+  .attendance-personal-mark[open] > form:not([hidden]),
   .attendance-analytics[open] > .attendance-analytics-content,
   .attendance-analytics table:not([hidden]){
-    animation:attendance-analytics-fade-in 180ms ease-out;
+    animation:attendance-disclosure-fade-in 180ms ease-out;
   }
-  @keyframes attendance-analytics-fade-in{
+  @keyframes attendance-disclosure-fade-in{
     from{ opacity:0; }
   }
   @supports (interpolate-size:allow-keywords) and selector(::details-content){
+    .attendance-personal-mark,
     .attendance-analytics{ interpolate-size:allow-keywords; }
+    .attendance-personal-mark::details-content,
     .attendance-analytics::details-content{
       block-size:0;
       overflow:clip;
       transition:block-size 200ms ease, content-visibility 200ms allow-discrete;
     }
+    .attendance-personal-mark[open]::details-content,
     .attendance-analytics[open]::details-content{ block-size:auto; }
   }
 }
