@@ -27,9 +27,11 @@ function element(tag, className, text) {
   return node;
 }
 
-function makeList(day) {
+const nameOrder = new Intl.Collator('ru', { sensitivity: 'base' });
+
+function makeList(day, marks, absencesOnly) {
   const people = new Map();
-  for (const mark of day.marks) {
+  for (const mark of marks) {
     if (!people.has(mark.memberId)) people.set(mark.memberId, { name: mark.name, entries: new Map() });
     const entries = people.get(mark.memberId).entries;
     const key = JSON.stringify([mark.status, mark.reason]);
@@ -37,18 +39,30 @@ function makeList(day) {
     entries.get(key).pairs.push(mark.pair);
   }
 
-  return [...people.values()].map(person => {
+  const sortedPeople = [...people.values()];
+  if (absencesOnly) sortedPeople.sort((a, b) => nameOrder.compare(a.name, b.name));
+  return sortedPeople.map(person => {
     const row = element('li', 'attendance-person');
     row.append(element('strong', 'attendance-person-name', person.name));
     const entries = element('ul', 'attendance-person-marks');
-    for (const entry of person.entries.values()) {
+    const personEntries = [...person.entries.values()];
+    if (absencesOnly) {
+      for (const entry of personEntries) entry.pairs.sort((a, b) => a - b);
+      personEntries.sort((a, b) => a.pairs[0] - b.pairs[0]);
+    }
+    for (const entry of personEntries) {
       const status = statuses.get(entry.status);
       const details = element('li', 'attendance-person-mark');
       const badge = element('span', 'attendance-mark-badge', entry.status);
       badge.dataset.color = status.color;
       const scope = entry.pairs.length === 1 ? `${entry.pairs[0]}-я пара` :
         entry.pairs.length === day.pairs.length ? 'Все пары' : `Пары ${entry.pairs.join(', ')}`;
-      details.append(badge, element('span', 'attendance-mark-caption', `${status.label} · ${scope}`));
+      if (absencesOnly) {
+        details.append(badge, element('span', 'attendance-mark-caption', status.label),
+          element('span', 'attendance-mark-pairs', scope));
+      } else {
+        details.append(badge, element('span', 'attendance-mark-caption', `${status.label} · ${scope}`));
+      }
       if (entry.reason) details.append(element('p', 'attendance-private-reason', `Причина · ${entry.reason}`));
       entries.append(details);
     }
@@ -71,11 +85,16 @@ export function setupAttendanceMarks(call) {
   const reason = document.getElementById('attendance-reason');
   const clear = document.getElementById('attendance-clear-mark');
   const groupMarks = document.getElementById('attendance-group-marks');
+  const groupTitle = document.getElementById('attendance-group-marks-title');
   const list = document.getElementById('attendance-mark-list');
+  const personalMark = document.getElementById('attendance-personal-mark');
+  const absenceCount = document.getElementById('attendance-absence-count');
+  const absenceEmpty = document.getElementById('attendance-absence-empty');
 
   let revision = 0;
   let saving = false;
   let day = null;
+  let activeRole = null;
 
   function updateReason() {
     const showReason = status.value === 'ПН';
@@ -124,8 +143,15 @@ export function setupAttendanceMarks(call) {
 
       if (form) showEditor(selectedScope);
       message.textContent = feedback || (reviewGroup && !day.marks.length ? 'За эту дату отметок пока нет.' : '');
-      if (day.marks.length) {
-        list.replaceChildren(...makeList(day));
+      const absencesOnly = activeRole === 'leader' && !reviewGroup;
+      const marks = absencesOnly ? day.marks.filter(mark => mark.status !== 'ПР') : day.marks;
+      if (absencesOnly || marks.length) {
+        const rows = makeList(day, marks, absencesOnly);
+        list.replaceChildren(...rows);
+        if (absencesOnly) {
+          absenceCount.textContent = String(rows.length);
+          absenceEmpty.hidden = rows.length > 0;
+        }
         groupMarks.hidden = false;
       }
     } catch (error) {
@@ -176,6 +202,16 @@ export function setupAttendanceMarks(call) {
   return {
     showFor(profile) {
       const group = reviewGroup ? (profile?.role === 'system_admin' ? reviewGroup.value : null) : profile?.group;
+      const role = group ? profile.role : null;
+      if (personalMark && role !== activeRole) {
+        const isLeader = role === 'leader';
+        personalMark.open = !isLeader;
+        groupMarks.classList.toggle('attendance-absences', isLeader);
+        groupTitle.textContent = isLeader ? 'Отсутствующие' : 'Отметки группы';
+        absenceCount.hidden = !isLeader;
+        absenceEmpty.hidden = true;
+      }
+      activeRole = role;
       calendar.setGroup(group);
       if (group) {
         panel.hidden = false;

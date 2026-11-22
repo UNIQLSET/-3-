@@ -1734,6 +1734,33 @@ html[data-theme="dark"] .attendance-marks{
   font-size:19px;
   line-height:1.2;
 }
+.attendance-personal-mark{ margin-top:12px; }
+.attendance-personal-mark summary{
+  display:flex;
+  width:fit-content;
+  min-height:44px;
+  align-items:center;
+  gap:9px;
+  padding:8px 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--paper);
+  color:var(--ink);
+  font-weight:600;
+  cursor:pointer;
+  list-style:none;
+}
+.attendance-personal-mark summary::-webkit-details-marker{ display:none; }
+.attendance-personal-mark summary::before{
+  content:"";
+  width:8px;
+  height:8px;
+  border-right:2px solid var(--teal);
+  border-bottom:2px solid var(--teal);
+  transform:rotate(-45deg);
+}
+.attendance-personal-mark[open] summary::before{ transform:translateY(-2px) rotate(45deg); }
+.attendance-personal-mark summary:focus-visible{ outline:2px solid var(--teal); outline-offset:3px; }
 .attendance-date-button{
   display:inline-flex;
   min-height:42px;
@@ -1834,11 +1861,34 @@ html[data-theme="dark"] .attendance-marks{
   padding:0;
 }
 .attendance-group-marks > ul{ margin-top:10px; }
+.attendance-group-marks > ul:empty{ margin-top:0; }
+.attendance-absence-count:not([hidden]){
+  display:inline-grid;
+  min-width:30px;
+  min-height:26px;
+  place-items:center;
+  padding:2px 8px;
+  border-radius:20px;
+  background:var(--teal-bg);
+  color:var(--teal);
+  font:600 13px 'IBM Plex Mono', monospace;
+}
+.attendance-absences > ul:not(:empty){
+  display:grid;
+  gap:8px;
+  margin-top:14px;
+}
+.attendance-absences .attendance-person{
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--paper);
+}
 .attendance-person{
   padding:12px 0;
   border-top:1px solid var(--line);
 }
-.attendance-person:last-child{ padding-bottom:0; }
+.attendance-group-marks:not(.attendance-absences) .attendance-person:last-child{ padding-bottom:0; }
 .attendance-person-name{ color:var(--ink); overflow-wrap:anywhere; }
 .attendance-person-marks .attendance-person-mark{
   display:grid;
@@ -1861,6 +1911,20 @@ html[data-theme="dark"] .attendance-marks{
 .attendance-mark-badge[data-color="gold"]{ background:var(--gold-bg); color:var(--attendance-gold); }
 .attendance-mark-badge[data-color="blue"]{ background:var(--attendance-blue-bg); color:var(--attendance-blue); }
 .attendance-mark-caption{ color:var(--ink-soft); font-size:14px; }
+.attendance-absences .attendance-person-mark{
+  grid-template-columns:35px minmax(0, 1fr) auto;
+}
+.attendance-mark-pairs{
+  justify-self:end;
+  padding:3px 7px;
+  border-radius:6px;
+  background:var(--paper-card);
+  color:var(--ink);
+  font-size:13px;
+  font-weight:600;
+  text-align:right;
+}
+.attendance-absences .attendance-private-reason{ grid-column:2 / -1; }
 .attendance-private-reason{
   grid-column:2;
   margin:0;
@@ -1869,6 +1933,10 @@ html[data-theme="dark"] .attendance-marks{
   line-height:1.4;
   white-space:pre-wrap;
   overflow-wrap:anywhere;
+}
+@media (max-width:420px){
+  .attendance-absences .attendance-person-mark{ grid-template-columns:35px minmax(0, 1fr); }
+  .attendance-mark-pairs{ grid-column:2; justify-self:start; text-align:left; }
 }
 
 .attendance-calendar{

@@ -216,28 +216,35 @@
     <section id="attendance-marks" class="attendance-marks" aria-label="Отметки посещаемости" hidden>
       <section class="attendance-mark-card" aria-labelledby="attendance-mark-title">
         <div class="attendance-mark-header">
-          <h3 id="attendance-mark-title">Моя отметка</h3>
+          <h3 id="attendance-mark-title">Дата отметок</h3>
           <div id="attendance-date-control"></div>
         </div>
         <p id="attendance-mark-message" class="attendance-mark-message" role="status"></p>
-        <form id="attendance-mark-form" hidden>
-          <div class="attendance-mark-fields">
-            <label for="attendance-pair">К каким парам <select id="attendance-pair" required></select></label>
-            <label for="attendance-status">Статус <select id="attendance-status" required></select></label>
-          </div>
-          <div id="attendance-reason-field" class="attendance-reason-field" hidden>
-            <label for="attendance-reason">Причина пропуска (необязательно)</label>
-            <textarea id="attendance-reason" rows="3" maxlength="500" aria-describedby="attendance-reason-note"></textarea>
-            <p id="attendance-reason-note">Староста решает, вносить ли пропуск в бумажный журнал.</p>
-          </div>
-          <div class="attendance-mark-actions">
-            <button type="submit">Сохранить отметку</button>
-            <button id="attendance-clear-mark" type="button" hidden>Снять отметку</button>
-          </div>
-        </form>
+        <details id="attendance-personal-mark" class="attendance-personal-mark" open>
+          <summary>Моя отметка</summary>
+          <form id="attendance-mark-form" hidden>
+            <div class="attendance-mark-fields">
+              <label for="attendance-pair">К каким парам <select id="attendance-pair" required></select></label>
+              <label for="attendance-status">Статус <select id="attendance-status" required></select></label>
+            </div>
+            <div id="attendance-reason-field" class="attendance-reason-field" hidden>
+              <label for="attendance-reason">Причина пропуска (необязательно)</label>
+              <textarea id="attendance-reason" rows="3" maxlength="500" aria-describedby="attendance-reason-note"></textarea>
+              <p id="attendance-reason-note">Староста решает, вносить ли пропуск в бумажный журнал.</p>
+            </div>
+            <div class="attendance-mark-actions">
+              <button type="submit">Сохранить отметку</button>
+              <button id="attendance-clear-mark" type="button" hidden>Снять отметку</button>
+            </div>
+          </form>
+        </details>
       </section>
       <section id="attendance-group-marks" class="attendance-mark-card attendance-group-marks" aria-labelledby="attendance-group-marks-title" hidden>
-        <h3 id="attendance-group-marks-title">Отметки группы</h3>
+        <div class="attendance-mark-header">
+          <h3 id="attendance-group-marks-title">Отметки группы</h3>
+          <span id="attendance-absence-count" class="attendance-absence-count" hidden></span>
+        </div>
+        <p id="attendance-absence-empty" class="attendance-mark-message" hidden>На выбранную дату пока нет отметок об отсутствии.</p>
         <ul id="attendance-mark-list"></ul>
       </section>
     </section>
