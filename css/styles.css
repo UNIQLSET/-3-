@@ -1656,6 +1656,7 @@ body{ padding-bottom:var(--page-nav-clearance); }
   background:var(--paper);
   color:var(--ink);
   font:inherit;
+  font-size:16px;
 }
 .attendance-auth button{
   min-height:44px;
@@ -1934,7 +1935,7 @@ details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotat
   border-radius:10px;
   background:var(--paper);
   color:var(--ink);
-  font:500 15px 'IBM Plex Sans', sans-serif;
+  font:500 16px 'IBM Plex Sans', sans-serif;
 }
 .attendance-mark-card :is(input, select, textarea, button):focus-visible{
   outline:2px solid var(--teal);
@@ -1959,7 +1960,11 @@ details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotat
   border-radius:12px;
   background:var(--plum-bg);
 }
-.attendance-reason-field textarea{ resize:vertical; }
+.attendance-reason-field:focus-within{ border-color:var(--teal); }
+.attendance-reason-field textarea{
+  line-height:1.5;
+  resize:vertical;
+}
 .attendance-reason-field p,.attendance-mark-message{
   margin:8px 0 0;
   color:var(--ink-soft);
@@ -2188,6 +2193,9 @@ details[open] > .attendance-disclosure::before{ transform:translateY(-2px) rotat
 @media (max-width:520px){
   .attendance-mark-card{ padding:14px; }
   .attendance-mark-fields{ grid-template-columns:minmax(0, 1fr); gap:10px; }
+  .attendance-reason-field{ padding:10px; }
+  .attendance-reason-field textarea{ scroll-margin-block:12px var(--page-nav-clearance); }
+  .attendance-mark-actions button{ flex:1 1 auto; }
   .attendance-calendar{
     inset:auto 0 0;
     width:min(384px, calc(100% - 16px));
