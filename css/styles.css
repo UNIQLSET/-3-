@@ -1215,7 +1215,18 @@ html:not([data-theme="dark"]) .theme-svg .moon{ display:none; }
   outline:2px solid var(--teal);
   outline-offset:2px;
 }
+.app-info-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:18px;
+}
+.app-info-heading h2{ margin:0; }
 #app-info .app-info-close{
+  position:static;
+  display:grid;
+  place-items:center;
   border:0;
   outline:0;
   background:transparent;
