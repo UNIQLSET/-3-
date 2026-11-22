@@ -159,7 +159,18 @@ import { findScheduleRow, isCalendarDate, scheduleDays as DAYS, scheduleMaxWeek 
     return Math.max(0, Math.min(MAX, Math.floor(((d - START) / 86400000) / 7)));
   }
   function day(d) {
-    return d.getDay() > 0 && d.getDay() < 7 ? DAYS[d.getDay() - 1] : 'sat';
+    return DAYS[d.getDay() - 1];
+  }
+
+  function defaultScheduleDate(date) {
+    if (date.getDay() !== 0) return date;
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+  }
+
+  function selectDefaultDate(date) {
+    const target = defaultScheduleDate(date);
+    set('week-' + week(target));
+    set('day-' + day(target));
   }
 
   const dayMs = 86400000;
@@ -610,7 +621,11 @@ function updateWeekInfo() {
   relEl.textContent = isCurrentWeek ? 'Текущая неделя' : '';
 
   const todayButton = document.getElementById('today-jump');
-  if (todayButton) todayButton.disabled = isCurrentWeek && checked('day') === day(now);
+  if (todayButton) {
+    const target = defaultScheduleDate(now);
+    todayButton.textContent = now.getDay() === 0 ? 'Понедельник' : 'Сегодня';
+    todayButton.disabled = w === week(target) && checked('day') === day(target);
+  }
 
   // Границы стрелок
   const prev = document.getElementById('week-prev');
@@ -643,9 +658,7 @@ document.getElementById('week-next')?.addEventListener('click', () => {
 });
 
 document.getElementById('today-jump')?.addEventListener('click', () => {
-  const now = new Date();
-  set('week-' + week(now));
-  set('day-' + day(now));
+  selectDefaultDate(new Date());
   updateDayNumbers();
   render();
 });
@@ -662,12 +675,6 @@ function updateDayNumbers() {
       else e.removeAttribute('aria-current');
     }
   });
-  const sundayLabel = $('#schedule-sunday');
-  if (sundayLabel) {
-    const sunday = new Date(m.getFullYear(), m.getMonth(), m.getDate() + 6);
-    sundayLabel.hidden = sunday.toDateString() !== today;
-    sundayLabel.textContent = `Вс, ${sunday.getDate()}`;
-  }
 }
 
 function updateActive() {
@@ -870,10 +877,7 @@ document.getElementById('schedule')?.addEventListener('click', e => {
 
 // ─── ИНИЦИАЛИЗАЦИЯ ────────────────────────────────────────────
 const n = new Date();
-if (!selectSharedSchedule()) {
-  set('day-' + day(n));
-  set('week-' + week(n));
-}
+if (!selectSharedSchedule()) selectDefaultDate(n);
 renderSwitcher();
 updateDayNumbers();
 render();
@@ -883,8 +887,7 @@ setInterval(() => {
   const x = new Date();
   if (x.toDateString() !== last) {
     last = x.toDateString();
-    set('day-' + day(x));
-    set('week-' + week(x));
+    selectDefaultDate(x);
     updateDayNumbers();
     render();
   } else {
