@@ -1,4 +1,4 @@
-import { setupAttendanceMarks } from './attendance-marks.js?v=20261122-personal-mark';
+import { setupAttendanceMarks } from './attendance-marks.js?v=20261122-attendance-motion';
 import { setupAttendanceRegistrations } from './attendance-registrations.js';
 import { callAttendance as call } from './supabase.js';
 
@@ -262,6 +262,12 @@ logout.addEventListener('click', signOut);
 if (profileMenu) document.addEventListener('pointerup', event => {
   if (profileMenu.open && !profileMenu.contains(event.target)) profileMenu.open = false;
 }, { capture: true });
+profileMenu?.addEventListener('keydown', event => {
+  if (!profileMenu.open || event.key !== 'Escape') return;
+  event.preventDefault();
+  profileMenu.open = false;
+  profileMenu.querySelector('summary').focus();
+});
 if (!adminPage) window.addEventListener('hashchange', () => {
   if (profileMenu) profileMenu.open = false;
   if (location.hash !== '#attendance') return;

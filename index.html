@@ -3,9 +3,9 @@
 <head>
 <script src="./js/questions.js" defer></script>
 <script src="./js/verified-lessons.js" defer></script>
-<script type="module" src="./js/app.js?v=20261122-azure-flow"></script>
-<script src="./js/pwa.js?v=20261122-azure-flow" defer></script>
-<script type="module" src="./js/attendance.js?v=20261122-personal-mark"></script>
+<script type="module" src="./js/app.js?v=20261122-attendance-motion"></script>
+<script src="./js/pwa.js" defer></script>
+<script type="module" src="./js/attendance.js?v=20261122-attendance-motion"></script>
 
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-74Q3M2K18C"></script>
@@ -35,7 +35,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="./css/styles.css?v=20261122-mobile-layout">
+<link rel="stylesheet" href="./css/styles.css?v=20261122-attendance-motion">
 </head>
 <body>
 
@@ -48,19 +48,19 @@
 <div class="header">
   <div class="header-inner">
     <p class="brand">
-      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="3" y="5" width="18" height="16" rx="3"/>
-        <path d="M7 3v4m10-4v4M3 10h18m-13 5h2m4 0h2"/>
-      </svg>
-      <span class="brand-word">Академия</span>
-      <span class="brand-emblem">МВД</span>
+      <img class="brand-icon" src="./assets/images/academy-logo.png?v=2" width="52" height="52" alt="">
+      <span class="brand-name">
+        <span class="brand-word">Академия</span>
+        <span class="brand-emblem">МВД</span>
+      </span>
     </p>
     <div class="header-actions">
       <details id="attendance-profile" class="attendance-profile" hidden>
         <summary class="attendance-profile-trigger" aria-label="Профиль" title="Профиль">
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="8" r="3"/>
-            <path d="M5 20v-1a7 7 0 0 1 14 0v1"/>
+            <circle cx="12" cy="12" r="9"/>
+            <circle cx="12" cy="10" r="2.4"/>
+            <path d="M7.8 17a4.4 4.4 0 0 1 8.4 0"/>
           </svg>
         </summary>
         <div class="attendance-auth attendance-profile-panel">
@@ -71,7 +71,7 @@
         </div>
       </details>
       <div class="header-menu" id="header-menu">
-        <button id="header-menu-toggle" class="header-menu-toggle" type="button" aria-label="Дополнительные действия" aria-expanded="false" aria-controls="header-menu-items">
+        <button id="header-menu-toggle" class="header-menu-toggle" type="button" aria-label="Дополнительные действия" aria-expanded="false" aria-controls="header-menu-content">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="9"/>
             <path d="M8 12h.01m3.99 0h.01m3.99 0h.01" stroke-width="2.5"/>
@@ -79,31 +79,47 @@
         </button>
         <div class="header-menu-surface">
           <div class="header-menu-clip">
-            <ul id="header-menu-items" class="header-menu-items" inert>
-              <li><button id="theme-toggle" type="button">
-                <svg class="theme-svg" viewBox="0 0 24 24" aria-hidden="true">
-                  <g class="sun">
-                    <circle cx="12" cy="12" r="4"/>
-                    <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M19 5l-1.5 1.5m-11 11L5 19"/>
-                  </g>
-                  <path class="moon" d="M20.6 13.1A8.6 8.6 0 1 1 10.9 3.4a6.7 6.7 0 0 0 9.7 9.7Z"/>
-                </svg>
-                Сменить тему
-              </button></li>
-              <li><button id="app-info-button" type="button" aria-haspopup="dialog" aria-controls="app-info">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="12" cy="12" r="9"/>
-                  <path d="M12 11v5m0-8h.01"/>
-                </svg>
-                О приложении
-              </button></li>
-              <li><button id="share-schedule" type="button">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 15V3m-4 4 4-4 4 4m-9 4H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/>
-                </svg>
-                Поделиться расписанием
-              </button></li>
-            </ul>
+            <div id="header-menu-content" class="header-menu-content" inert>
+              <div id="switcher" class="switcher">
+                <div class="switcher-row" id="faculty-row" hidden>
+                  <span class="switcher-label" id="faculty-label">Факультет</span>
+                  <div class="switcher-tabs" id="faculty-tabs" role="group" aria-labelledby="faculty-label"></div>
+                </div>
+                <div class="switcher-row">
+                  <span class="switcher-label" id="course-label">Курс</span>
+                  <div class="switcher-tabs" id="course-tabs" role="group" aria-labelledby="course-label"></div>
+                </div>
+                <div class="switcher-row">
+                  <span class="switcher-label" id="group-label">Группа</span>
+                  <div class="switcher-tabs" id="group-tabs" role="group" aria-labelledby="group-label"></div>
+                </div>
+              </div>
+              <ul id="header-menu-items" class="header-menu-items">
+                <li><button id="theme-toggle" type="button">
+                  <svg class="theme-svg" viewBox="0 0 24 24" aria-hidden="true">
+                    <g class="sun">
+                      <circle cx="12" cy="12" r="4"/>
+                      <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M19 5l-1.5 1.5m-11 11L5 19"/>
+                    </g>
+                    <path class="moon" d="M20.6 13.1A8.6 8.6 0 1 1 10.9 3.4a6.7 6.7 0 0 0 9.7 9.7Z"/>
+                  </svg>
+                  Сменить тему
+                </button></li>
+                <li><button id="app-info-button" type="button" aria-haspopup="dialog" aria-controls="app-info">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 11v5m0-8h.01"/>
+                  </svg>
+                  О приложении
+                </button></li>
+                <li><button id="share-schedule" type="button">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 15V3m-4 4 4-4 4 4m-9 4H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-1"/>
+                  </svg>
+                  Поделиться расписанием
+                </button></li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -114,50 +130,6 @@
     <cite>И. С. Тургенев</cite>
   </blockquote>
   </div>
-<main id="schedule-page">
-<input type="radio" name="day" id="day-mon" class="hidden-radio" checked>
-<input type="radio" name="day" id="day-tue" class="hidden-radio">
-<input type="radio" name="day" id="day-wed" class="hidden-radio">
-<input type="radio" name="day" id="day-thu" class="hidden-radio">
-<input type="radio" name="day" id="day-fri" class="hidden-radio">
-<input type="radio" name="day" id="day-sat" class="hidden-radio">
-<input type="radio" name="week" id="week-0" class="hidden-radio">
-<input type="radio" name="week" id="week-1" class="hidden-radio" checked>
-<input type="radio" name="week" id="week-2" class="hidden-radio">
-<input type="radio" name="week" id="week-3" class="hidden-radio">
-<input type="radio" name="week" id="week-4" class="hidden-radio">
-<input type="radio" name="week" id="week-5" class="hidden-radio">
-<input type="radio" name="week" id="week-6" class="hidden-radio">
-<input type="radio" name="week" id="week-7" class="hidden-radio">
-<input type="radio" name="week" id="week-8" class="hidden-radio">
-<input type="radio" name="week" id="week-9" class="hidden-radio">
-<input type="radio" name="week" id="week-10" class="hidden-radio">
-<input type="radio" name="week" id="week-11" class="hidden-radio">
-<input type="radio" name="week" id="week-12" class="hidden-radio">
-<input type="radio" name="week" id="week-13" class="hidden-radio">
-<input type="radio" name="week" id="week-14" class="hidden-radio">
-<input type="radio" name="week" id="week-15" class="hidden-radio">
-<input type="radio" name="week" id="week-16" class="hidden-radio">
-<input type="radio" name="week" id="week-17" class="hidden-radio">
-
-<div class="switcher" id="switcher">
-  <h1 class="schedule-title">Расписание занятий</h1>
-  <div class="switcher-inner">
-    <div class="switcher-row" id="faculty-row" style="display:none">
-      <span class="switcher-label">Факультет</span>
-      <div class="switcher-tabs" id="faculty-tabs"></div>
-    </div>
-    <div class="switcher-row">
-      <span class="switcher-label">Курс</span>
-      <div class="switcher-tabs" id="course-tabs"></div>
-    </div>
-    <div class="switcher-row">
-      <span class="switcher-label">Группа</span>
-      <div class="switcher-tabs" id="group-tabs"></div>
-    </div>
-  </div>
-</div>
-
 <dialog id="app-info" class="app-info" aria-labelledby="app-info-title">
   <form method="dialog">
     <button class="app-info-close" type="submit" aria-label="Закрыть" autofocus>×</button>
@@ -186,6 +158,32 @@
 </dialog>
 <p id="share-status" class="share-status" role="status"></p>
 
+<main id="schedule-page" aria-label="Расписание">
+<input type="radio" name="day" id="day-mon" class="hidden-radio" checked>
+<input type="radio" name="day" id="day-tue" class="hidden-radio">
+<input type="radio" name="day" id="day-wed" class="hidden-radio">
+<input type="radio" name="day" id="day-thu" class="hidden-radio">
+<input type="radio" name="day" id="day-fri" class="hidden-radio">
+<input type="radio" name="day" id="day-sat" class="hidden-radio">
+<input type="radio" name="week" id="week-0" class="hidden-radio">
+<input type="radio" name="week" id="week-1" class="hidden-radio" checked>
+<input type="radio" name="week" id="week-2" class="hidden-radio">
+<input type="radio" name="week" id="week-3" class="hidden-radio">
+<input type="radio" name="week" id="week-4" class="hidden-radio">
+<input type="radio" name="week" id="week-5" class="hidden-radio">
+<input type="radio" name="week" id="week-6" class="hidden-radio">
+<input type="radio" name="week" id="week-7" class="hidden-radio">
+<input type="radio" name="week" id="week-8" class="hidden-radio">
+<input type="radio" name="week" id="week-9" class="hidden-radio">
+<input type="radio" name="week" id="week-10" class="hidden-radio">
+<input type="radio" name="week" id="week-11" class="hidden-radio">
+<input type="radio" name="week" id="week-12" class="hidden-radio">
+<input type="radio" name="week" id="week-13" class="hidden-radio">
+<input type="radio" name="week" id="week-14" class="hidden-radio">
+<input type="radio" name="week" id="week-15" class="hidden-radio">
+<input type="radio" name="week" id="week-16" class="hidden-radio">
+<input type="radio" name="week" id="week-17" class="hidden-radio">
+
 <div class="app">
   <div class="wrap">
 
@@ -193,10 +191,7 @@
       <div class="week-head">
         <div class="week-title">
           <div class="week-month" id="week-month"></div>
-          <div class="week-meta">
-            <div class="week-range" id="week-range"></div>
-            <div class="day-glance" id="day-glance" aria-live="polite"></div>
-          </div>
+          <p id="schedule-group-label" class="schedule-group-label" aria-live="polite"></p>
         </div>
         <div class="week-actions">
           <div class="week-rel" id="week-rel"></div>
@@ -205,7 +200,9 @@
       </div>
 
       <div class="day-nav">
-        <button type="button" class="day-arrow" id="week-prev" aria-label="Предыдущая неделя">‹</button>
+        <button type="button" class="day-arrow" id="week-prev" aria-label="Предыдущая неделя">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
 
         <div class="day-tabs">
           <label for="day-mon" class="day-tab"><span class="day-num" id="daynum-mon"></span><span class="day-name">Пн</span></label>
@@ -216,7 +213,9 @@
           <label for="day-sat" class="day-tab"><span class="day-num" id="daynum-sat"></span><span class="day-name">Сб</span></label>
         </div>
 
-        <button type="button" class="day-arrow" id="week-next" aria-label="Следующая неделя">›</button>
+        <button type="button" class="day-arrow" id="week-next" aria-label="Следующая неделя">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
       </div>
     </div>
 

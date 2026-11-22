@@ -4,48 +4,66 @@ import { findScheduleRow, isCalendarDate, scheduleDays as DAYS, scheduleMaxWeek 
 (() => {
   const pageLinks = document.querySelectorAll('.page-nav a');
 
-  function updatePageNavigation() {
+  const headerMenu = document.getElementById('header-menu');
+  const menuToggle = document.getElementById('header-menu-toggle');
+  const menuContent = document.getElementById('header-menu-content');
+  const menuItems = document.getElementById('header-menu-items');
+  const switcher = document.getElementById('switcher');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  let pageAnimation;
+
+  function updatePageNavigation(animate = false) {
     const activeHash = location.hash === '#attendance' ? '#attendance' : '#timetable';
+    switcher.hidden = activeHash !== '#timetable';
+    const previousLink = Array.from(pageLinks).find(link => link.getAttribute('aria-current') === 'page');
+    let activePage;
 
     for (const link of pageLinks) {
       const active = link.hash === activeHash;
-      document.getElementById(link.getAttribute('aria-controls')).hidden = !active;
+      const page = document.getElementById(link.getAttribute('aria-controls'));
+      page.hidden = !active;
       if (active) {
+        activePage = page;
         link.setAttribute('aria-current', 'page');
       } else {
         link.removeAttribute('aria-current');
       }
     }
+    if (animate && activePage && previousLink?.hash !== activeHash && !reducedMotion.matches) {
+      pageAnimation?.cancel();
+      const offset = activeHash === '#attendance' ? 10 : -10;
+      pageAnimation = activePage.querySelector('.wrap').animate(
+        [{opacity: .55, transform: `translateX(${offset}px)`}, {opacity: 1, transform: 'translateX(0)'}],
+        {duration: 190, easing: 'ease-out'}
+      );
+    }
   }
 
   updatePageNavigation();
-  window.addEventListener('hashchange', updatePageNavigation);
-
-  const headerMenu = document.getElementById('header-menu');
-  const menuToggle = document.getElementById('header-menu-toggle');
-  const menuItems = document.getElementById('header-menu-items');
+  window.addEventListener('hashchange', () => updatePageNavigation(true));
 
   function closeMenu(restoreFocus = false) {
-    if (menuItems.inert) return;
+    if (menuContent.inert) return;
     menuToggle.setAttribute('aria-expanded', 'false');
-    menuItems.inert = true;
+    menuContent.inert = true;
     if (restoreFocus) menuToggle.focus();
   }
 
   menuToggle.addEventListener('click', () => {
-    if (!menuItems.inert) {
+    if (!menuContent.inert) {
       closeMenu(true);
       return;
     }
     menuToggle.setAttribute('aria-expanded', 'true');
-    menuItems.inert = false;
-    menuItems.querySelector('button').focus();
+    menuContent.inert = false;
+    const activeCourse = switcher.hidden ? null : switcher.querySelector('#course-tabs [aria-pressed="true"]');
+    (activeCourse || menuItems.querySelector('button')).focus({preventScroll: true});
   });
   menuItems.addEventListener('click', event => {
     if (event.target.closest('button')) closeMenu(true);
   }, true);
   headerMenu.addEventListener('keydown', event => {
-    if (event.key !== 'Escape' || menuItems.inert) return;
+    if (event.key !== 'Escape' || menuContent.inert) return;
     event.preventDefault();
     closeMenu(true);
   });
@@ -101,7 +119,6 @@ import { findScheduleRow, isCalendarDate, scheduleDays as DAYS, scheduleMaxWeek 
 
   // ─── СОСТОЯНИЕ ─────────────────────────────────────────────────
   const state = { faculty: FACULTIES[0].id, course: null, group: null };
-  let slideDir = null;
   (function loadState() {
     try {
       const f = localStorage.getItem('schedule-faculty');
@@ -205,53 +222,43 @@ import { findScheduleRow, isCalendarDate, scheduleDays as DAYS, scheduleMaxWeek 
 
   // ─── РЕНДЕР СЕЛЕКТОРА ──────────────────────────────────────────
   function renderSwitcher() {
-    const fac = FACULTIES.find(f => f.id === state.faculty) || FACULTIES[0];
-    state.faculty = fac.id;
+    const faculty = FACULTIES.find(f => f.id === state.faculty) || FACULTIES[0];
+    const course = faculty.courses.find(c => c.id === state.course) || faculty.courses[0];
+    state.faculty = faculty.id;
+    state.course = course.id;
+    if (!course.groups.includes(state.group)) state.group = course.groups[0];
 
-
-    const facRow = $('#faculty-row');
-    const facTabs = $('#faculty-tabs');
+    $('#faculty-row').hidden = FACULTIES.length < 2;
     if (FACULTIES.length > 1) {
-      facRow.style.display = '';
-      facTabs.innerHTML = FACULTIES.map(f =>
-        `<button type="button" class="switcher-tab${f.id === state.faculty ? ' active' : ''}" data-faculty="${f.id}">${f.label}</button>`
+      $('#faculty-tabs').innerHTML = FACULTIES.map(f =>
+        `<button type="button" class="switcher-tab" aria-pressed="${f.id === state.faculty}" data-faculty="${f.id}">${f.label}</button>`
       ).join('');
-    } else {
-      facRow.style.display = 'none';
     }
-
-    // Курс — сброс к первому, если текущий отсутствует
-    if (!fac.courses.find(c => c.id === state.course)) {
-      state.course = fac.courses[0].id;
-    }
-    $('#course-tabs').innerHTML = fac.courses.map(c =>
-      `<button type="button" class="switcher-tab${c.id === state.course ? ' active' : ''}" data-course="${c.id}">${c.label}</button>`
+    $('#course-tabs').innerHTML = faculty.courses.map(c =>
+      `<button type="button" class="switcher-tab" aria-pressed="${c.id === state.course}" data-course="${c.id}">${c.label}</button>`
     ).join('');
-
-    // Группа — сброс к первой, если текущей нет
-    const course = fac.courses.find(c => c.id === state.course);
-    if (!course.groups.includes(state.group)) {
-      state.group = course.groups[0];
-    }
     $('#group-tabs').innerHTML = course.groups.map(g =>
-      `<button type="button" class="switcher-tab${g === state.group ? ' active' : ''}" data-group="${g}">${g}</button>`
+      `<button type="button" class="switcher-tab" aria-pressed="${g === state.group}" data-group="${g}">${g}</button>`
     ).join('');
-
-    // Подпись факультета в шапке
-    const eb = $('#eyebrow-text');
-    if (eb) eb.textContent = 'Академия МВД';
+    $('#schedule-group-label').textContent = `Группа ${state.group}`;
   }
 
-  // Клики по селектору
-  document.getElementById('switcher').addEventListener('click', e => {
-    const t = e.target.closest('.switcher-tab');
-    if (!t) return;
-    if (t.dataset.faculty) state.faculty = t.dataset.faculty;
-    if (t.dataset.course) state.course = t.dataset.course;
-    if (t.dataset.group) state.group = t.dataset.group;
-    saveState();
+  switcher.addEventListener('click', event => {
+    const button = event.target.closest('.switcher-tab');
+    if (!button) return;
+    const tabs = button.parentElement;
+    const {faculty, course, group} = button.dataset;
+    if (faculty) state.faculty = faculty;
+    if (course) state.course = course;
+    if (group) state.group = group;
     renderSwitcher();
+    saveState();
     render();
+    if (group) {
+      closeMenu(true);
+    } else {
+      tabs.querySelector('[aria-pressed="true"]').focus({preventScroll: true});
+    }
   });
 
   // ─── ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ПАРСИНГА (без изменений) ──────────
@@ -472,18 +479,25 @@ function subjectHue(s) {
   return h;
 }
   // ─── РЕНДЕР РАСПИСАНИЯ ─────────────────────────────────────────
+let renderedWeek;
+let weekDatesAnimation;
+const weekMotion = matchMedia('(prefers-reduced-motion: no-preference)');
+
 function render() {
 
   const g = state.group;
   const d = checked('day');
   const w = +checked('week');
   const root = $('#schedule');
+  const previousWeek = renderedWeek;
+  renderedWeek = w;
+  const weekChanged = previousWeek !== undefined && previousWeek !== w;
+
 
   const build = () => {
 
     root.innerHTML = '';
     const row = findScheduleRow(g, d, w);
-    updateDayGlance(row);
     const p = document.createElement('div');
     p.className = `panel panel-${g}-${d}-${w} active`;
 
@@ -547,6 +561,14 @@ function render() {
       });
       p.append(l);
     }
+    if (weekChanged && weekMotion.matches) {
+      p.classList.add('week-changing');
+      p.dataset.weekDirection = w > previousWeek ? 'next' : 'previous';
+      weekDatesAnimation?.cancel();
+      weekDatesAnimation = $('.day-tabs').animate(
+        [{opacity: .6}, {opacity: 1}], {duration: 200, easing: 'ease-out'}
+      );
+    }
     root.append(p);
     applyActive();
     updateActive();
@@ -565,7 +587,6 @@ function applyActive() {
 }
 function updateWeekInfo() {
   const monthEl = document.getElementById('week-month');
-  const rangeEl = document.getElementById('week-range');
   const relEl   = document.getElementById('week-rel');
   if (!monthEl) return;
 
@@ -573,8 +594,6 @@ function updateWeekInfo() {
   const monday = new Date(START.getFullYear(), START.getMonth(), START.getDate() + w * 7);
   const sat    = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 5);
 
-  const MON     = ['января','февраля','марта','апреля','мая','июня',
-                   'июля','августа','сентября','октября','ноября','декабря'];
   const MON_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь',
                    'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
@@ -584,12 +603,6 @@ function updateWeekInfo() {
   monthEl.textContent = sameMonth
     ? MON_NOM[monday.getMonth()] + ' ' + monday.getFullYear()
     : MON_NOM[monday.getMonth()] + ' – ' + MON_NOM[sat.getMonth()].toLowerCase();
-  if (rangeEl) {
-    rangeEl.textContent = sameMonth
-      ? monday.getDate() + '–' + sat.getDate() + ' ' + MON[monday.getMonth()]
-      : monday.getDate() + ' ' + MON[monday.getMonth()] + ' – ' + sat.getDate() + ' ' + MON[sat.getMonth()];
-  }
-
 
   // Текущая неделя / сегодня
   const now = new Date();
@@ -611,8 +624,6 @@ document.getElementById('week-prev')?.addEventListener('click', () => {
   const w = +checked('week');
   if (w <= 0) return;
 
-  slideDir = 'right';
-
   set('week-' + (w - 1));
   set('day-mon');
 
@@ -623,8 +634,6 @@ document.getElementById('week-prev')?.addEventListener('click', () => {
 document.getElementById('week-next')?.addEventListener('click', () => {
   const w = +checked('week');
   if (w >= MAX) return;
-
-  slideDir = 'left';
 
   set('week-' + (w + 1));
   set('day-mon');
@@ -652,30 +661,6 @@ function updateDayNumbers() {
       e.classList.toggle('is-today', x.toDateString() === today);
     }
   });
-}
-
-function updateDayGlance(row) {
-  const out = document.getElementById('day-glance');
-  if (!out) return;
-
-  const w = +checked('week');
-  const d = checked('day');
-  const dayIndex = DAYS.indexOf(d);
-  const date = new Date(START.getFullYear(), START.getMonth(), START.getDate() + w * 7 + Math.max(0, dayIndex));
-  const weekDay = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][date.getDay()];
-  const lessons = row?.[3] || [];
-  const last = lessons
-    .map(([, num]) => TIMES[num])
-    .filter(Boolean)
-    .sort((a, b) => a[1] - b[1])
-    .at(-1);
-
-  out.textContent = lessons.length
-    ? `${weekDay} · ${lessons.length} ${lessons.length === 1 ? 'пара' : lessons.length < 5 ? 'пары' : 'пар'} · до ${String(Math.floor(last[1] / 60)).padStart(2, '0')}:${String(last[1] % 60).padStart(2, '0')}`
-    : `${weekDay} · занятий нет`;
-
-  const now = new Date();
-  out.classList.toggle('is-today', date.toDateString() === now.toDateString());
 }
 
 function updateActive() {
@@ -899,74 +884,66 @@ setInterval(() => {
     updateActive();
   }
 }, 1000);
-// ─── СВАЙПЫ МЕЖДУ ДНЯМИ ───────────────────────────────────────
-(function initSwipes(){
-  const DAYS_ORDER = ['mon','tue','wed','thu','fri','sat'];
-  const target = document.getElementById('schedule');
-  if (!target) return;
+// ─── СВАЙПЫ ──────────────────────────────────────────────────
+let swipeStart;
 
-  let startX = 0, startY = 0, tracking = false;
+document.addEventListener('touchstart', event => {
+  swipeStart = null;
+  if (event.touches.length !== 1 || document.querySelector('dialog[open]')) return;
 
-  target.addEventListener('touchstart', e => {
-    if (e.touches.length !== 1) return;
-    const t = e.touches[0];
-    startX = t.clientX;
-    startY = t.clientY;
-    tracking = true;
-  }, {passive:true});
+  const target = event.target;
+  const inNavigation = target.closest('.page-nav');
+  if (!inNavigation && target.closest('a, button, input, select, textarea, label, summary, [contenteditable]')) return;
+  if (!inNavigation && !target.closest('#schedule-page, #attendance-page')) return;
 
-  // Если палец явно ушёл вверх/вниз — отменяем свайп, пусть скроллит
-  target.addEventListener('touchmove', e => {
-    if (!tracking) return;
-    const t = e.touches[0];
-    const dx = Math.abs(t.clientX - startX);
-    const dy = Math.abs(t.clientY - startY);
-    if (dy > 12 && dy > dx) tracking = false;
-  }, {passive:true});
+  const {clientX, clientY} = event.touches[0];
+  swipeStart = {x: clientX, y: clientY, onSchedule: Boolean(target.closest('#schedule'))};
+}, {passive: true});
 
-  target.addEventListener('touchend', e => {
-    if (!tracking) return;
-    tracking = false;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - startX;
-    const dy = t.clientY - startY;
+document.addEventListener('touchmove', event => {
+  if (!swipeStart) return;
+  if (event.touches.length !== 1) {
+    swipeStart = null;
+    return;
+  }
+  const touch = event.touches[0];
+  const distanceX = Math.abs(touch.clientX - swipeStart.x);
+  const distanceY = Math.abs(touch.clientY - swipeStart.y);
+  if (distanceY > 12 && distanceY > distanceX) swipeStart = null;
+}, {passive: true});
 
-    // Горизонталь должна быть явно больше вертикали
-    if (Math.abs(dx) < 55) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.4) return;
+document.addEventListener('touchcancel', () => { swipeStart = null; }, {passive: true});
 
-    const cur = checked('day');
-    const i = DAYS_ORDER.indexOf(cur);
-    if (i < 0) return;
+document.addEventListener('touchend', event => {
+  const start = swipeStart;
+  swipeStart = null;
+  if (!start) return;
 
-    const goNext = dx < 0;      // свайп влево → следующий
-    const goPrev = dx > 0;      // свайп вправо → предыдущий
+  const touch = event.changedTouches[0];
+  const dx = touch.clientX - start.x;
+  const dy = touch.clientY - start.y;
+  if (Math.abs(dx) < 55 || Math.abs(dx) < Math.abs(dy) * 1.4) return;
 
-    if (goNext && i < DAYS_ORDER.length - 1) {
-      slideDir = 'left';
-      set('day-' + DAYS_ORDER[i + 1]);
-    } else if (goPrev && i > 0) {
-      slideDir = 'right';
-      set('day-' + DAYS_ORDER[i - 1]);
+  if (start.onSchedule) {
+    const currentDay = DAYS.indexOf(checked('day'));
+    const step = dx < 0 ? 1 : -1;
+    const nextDay = DAYS[currentDay + step];
+    if (nextDay) {
+      set('day-' + nextDay);
     } else {
-      // На краю — переключаем неделю
-      const w = +checked('week');
-      if (goNext && w < MAX) {
-        slideDir = 'left';
-        set('week-' + (w + 1));
-        set('day-mon');
-      } else if (goPrev && w > 0) {
-        slideDir = 'right';
-        set('week-' + (w - 1));
-        set('day-sat');
-      } else {
-        return;
-      }
+      const nextWeek = +checked('week') + step;
+      if (nextWeek < 0 || nextWeek > MAX) return;
+      set('week-' + nextWeek);
+      set('day-' + (step > 0 ? DAYS[0] : DAYS.at(-1)));
     }
-
-    if (navigator.vibrate) navigator.vibrate(8);
     updateDayNumbers();
     render();
-  }, {passive:true});
-})();
+  } else {
+    const inAttendance = location.hash === '#attendance';
+    if (inAttendance !== (dx > 0)) return;
+    if (event.cancelable) event.preventDefault();
+    location.hash = inAttendance ? '#timetable' : '#attendance';
+  }
+  navigator.vibrate?.(8);
+}, {passive: false});
 })();
