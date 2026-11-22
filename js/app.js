@@ -623,7 +623,6 @@ function updateWeekInfo() {
   const todayButton = document.getElementById('today-jump');
   if (todayButton) {
     const target = defaultScheduleDate(now);
-    todayButton.textContent = now.getDay() === 0 ? 'Понедельник' : 'Сегодня';
     todayButton.disabled = w === week(target) && checked('day') === day(target);
   }
 
