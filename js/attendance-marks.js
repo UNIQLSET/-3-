@@ -30,8 +30,7 @@ function element(tag, className, text) {
 }
 
 const nameOrder = new Intl.Collator('ru', { sensitivity: 'base' });
-const pairCountRule = new Intl.PluralRules('ru');
-const pairCountWords = { one: 'пара', few: 'пары', many: 'пар', other: 'пар' };
+const pairListFormat = new Intl.ListFormat('ru');
 const periodFormat = new Intl.DateTimeFormat('ru', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
 
 function setupAnalytics(call) {
@@ -170,14 +169,16 @@ function makeList(day, marks, absencesOnly) {
       badge.dataset.color = status.color;
       const count = entry.pairs.length;
       const allPairs = count === day.pairs.length;
+      const scope = count === 1 ? `${entry.pairs[0]}-я пара` :
+        allPairs ? 'Все пары' : `Пары ${entry.pairs.join(', ')}`;
       if (absencesOnly) {
         badge.title = status.label;
-        details.append(badge, element('span', 'attendance-mark-pairs', `${count} ${pairCountWords[pairCountRule.select(count)]}`));
-        if (!allPairs) details.append(element('span', 'attendance-mark-caption', `№ ${entry.pairs.join(', ')}`));
+        const label = count > 1 && !allPairs
+          ? `${pairListFormat.format(entry.pairs.map(pair => `${pair}-я`))} пары`
+          : scope;
+        details.append(badge, element('span', 'attendance-mark-pairs', label));
         if (entry.reason) details.append(element('q', 'attendance-private-reason', entry.reason));
       } else {
-        const scope = count === 1 ? `${entry.pairs[0]}-я пара` :
-          allPairs ? 'Все пары' : `Пары ${entry.pairs.join(', ')}`;
         details.append(badge, element('span', 'attendance-mark-caption', `${status.label} · ${scope}`));
         if (entry.reason) details.append(element('p', 'attendance-private-reason', `Причина · ${entry.reason}`));
       }
