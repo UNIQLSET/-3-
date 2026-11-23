@@ -1,6 +1,6 @@
 import { setupAttendanceMarks } from './attendance-marks.js?v=20261122-attendance-motion';
 import { setupAttendanceRegistrations } from './attendance-registrations.js';
-import { callAttendance as call } from './supabase.js';
+import { callAttendance as call } from './supabase.js?v=20261123-telegram-login';
 
 const message = document.getElementById('attendance-message');
 const form = document.getElementById('attendance-login-form');
@@ -39,18 +39,20 @@ const errors = {
   invalid_admin_login: 'Не удалось войти. Проверьте пароль.',
   telegram_admin_required: 'У этого аккаунта Telegram нет доступа к кабинету.',
   invalid_login: 'Подтверждение Telegram не удалось. Попробуйте войти ещё раз.',
-  not_in_allowlist: 'Этого аккаунта Telegram нет в списке допущенных.',
+  not_in_allowlist: 'Этот аккаунт Telegram отсутствует в списке доступа. Если вы из 4501, передайте администратору свой числовой Telegram ID.',
   account_blocked: 'Доступ этого аккаунта заблокирован.',
   invalid_session: 'Сеанс завершён. Войдите снова.',
   invalid_group_details: 'Выберите группу и введите полное ФИО.',
   group_closed: 'Доступ пока открыт только для группы 4501.',
-  not_in_group_roster: 'В списке этой группы такого ФИО нет. Проверьте группу и написание.',
+  not_in_group_roster: 'ФИО не совпало со списком группы. Введите фамилию, имя и отчество полностью, как в списке группы.',
   leader_requires_admin: 'Для привязки этой записи нужно подтвердить ваш Telegram ID.',
   member_already_linked: 'Эта запись уже привязана к другому аккаунту.',
   admin_required: 'Войдите в кабинет снова.',
   invalid_leader_details: 'Выберите запись старосты и укажите числовой Telegram ID.',
   invalid_leader: 'Запись старосты недоступна. Обновите страницу.',
   telegram_already_linked: 'Этот Telegram ID уже привязан к другой записи.',
+  network_error: 'Не удалось связаться с сервером. Проверьте интернет и попробуйте снова.',
+  browser_unsupported: 'Откройте страницу в Safari, Chrome или другом обычном браузере и повторите вход.',
   unavailable: 'Вход сейчас недоступен. Попробуйте позже.'
 };
 
@@ -115,6 +117,7 @@ function base64Url(bytes) {
 }
 
 async function startTelegramLogin() {
+  if (!globalThis.crypto?.subtle) throw new Error('browser_unsupported');
   const verifier = base64Url(crypto.getRandomValues(new Uint8Array(32)));
   const state = base64Url(crypto.getRandomValues(new Uint8Array(32)));
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
