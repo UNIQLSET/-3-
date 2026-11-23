@@ -24,6 +24,10 @@ const adminPage = form.dataset.mode === 'admin';
 const sessionKey = adminPage ? 'attendance-admin-session' : 'attendance-telegram-session';
 const attemptKey = 'attendance-telegram-attempt';
 const resultKey = 'attendance-telegram-result';
+const safariLoginParam = 'telegram-safari-login';
+const appleMobile = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const telegramOnIos = appleMobile && !!window.TelegramWebviewProxy;
 const previousToken = sessionStorage.getItem(sessionKey);
 if (previousToken) {
   if (!localStorage.getItem(sessionKey)) localStorage.setItem(sessionKey, previousToken);
@@ -128,6 +132,15 @@ async function startTelegramLogin() {
 
 async function redirectToTelegram() {
   if (busy) return;
+  if (!adminPage && telegramOnIos && location.protocol === 'https:') {
+    const url = new URL('./', location.href);
+    url.searchParams.set(safariLoginParam, '1');
+    url.hash = 'attendance';
+    message.textContent = 'Если Safari не открылся, нажмите «…» в Telegram, выберите «Открыть в браузере» и повторите вход.';
+    // Start OAuth in Safari so its session storage also receives the callback.
+    location.assign(url.href.replace(/^https:/, 'x-safari-https:'));
+    return;
+  }
   setBusy(true);
   message.textContent = 'Открываем Telegram…';
   try {
@@ -284,4 +297,13 @@ window.addEventListener('pageshow', event => {
     loadSession();
   }
 });
-loadSession();
+const entryUrl = new URL(location.href);
+if (!adminPage && entryUrl.hash === '#attendance' && entryUrl.searchParams.get(safariLoginParam) === '1') {
+  entryUrl.searchParams.delete(safariLoginParam);
+  history.replaceState(history.state, '', entryUrl);
+  loadSession().then(() => {
+    if (!currentProfile && !telegramOnIos) redirectToTelegram();
+  });
+} else {
+  loadSession();
+}
