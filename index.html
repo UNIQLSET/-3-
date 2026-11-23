@@ -5,7 +5,7 @@
 <script src="./js/verified-lessons.js" defer></script>
 <script type="module" src="./js/app.js?v=20261122-attendance-motion"></script>
 <script src="./js/pwa.js" defer></script>
-<script type="module" src="./js/attendance.js?v=20261123-telegram-browser"></script>
+<script type="module" src="./js/attendance.js?v=20261123-telegram-login"></script>
 
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-74Q3M2K18C"></script>
@@ -234,13 +234,6 @@
       <p id="attendance-registration-note" class="attendance-registration-note">Система пока работает только для группы <strong>4501</strong>.</p>
       <form id="attendance-login-form">
         <button id="attendance-login" type="submit">Войти через Telegram</button>
-        <details id="attendance-login-help">
-          <summary>Кнопка Telegram не реагирует?</summary>
-          <p>Откройте эту страницу в Safari или Chrome и начните вход там. Если страница Telegram уже открылась, можно выбрать «Или войдите по номеру телефона».</p>
-          <button id="attendance-copy-login-link" type="button">Скопировать ссылку на вход</button>
-          <input id="attendance-login-link" type="url" aria-label="Ссылка на вход" readonly hidden>
-          <p id="attendance-copy-login-message" role="status"></p>
-        </details>
       </form>
       <form id="attendance-claim-form" hidden>
         <label for="attendance-group">Группа</label>

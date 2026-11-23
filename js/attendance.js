@@ -257,28 +257,6 @@ async function signOut() {
   }
 }
 
-const loginHelp = document.getElementById('attendance-login-help');
-if (loginHelp) {
-  if (window.TelegramWebviewProxy) loginHelp.open = true;
-  const loginLink = document.getElementById('attendance-login-link');
-  const copyMessage = document.getElementById('attendance-copy-login-message');
-  document.getElementById('attendance-copy-login-link').addEventListener('click', async () => {
-    const url = new URL('#attendance', location.href);
-    url.search = '';
-    try {
-      await navigator.clipboard.writeText(url.href);
-      loginLink.hidden = true;
-      copyMessage.textContent = 'Ссылка скопирована. Вставьте её в Safari или Chrome.';
-    } catch {
-      loginLink.value = url.href;
-      loginLink.hidden = false;
-      loginLink.focus();
-      loginLink.select();
-      copyMessage.textContent = 'Скопируйте выделенную ссылку и откройте её в Safari или Chrome.';
-    }
-  });
-}
-
 form.addEventListener('submit', signIn);
 document.getElementById('attendance-admin-telegram')?.addEventListener('click', redirectToTelegram);
 claimForm?.addEventListener('submit', claimGroup);
